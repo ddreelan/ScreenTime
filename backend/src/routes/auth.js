@@ -71,7 +71,7 @@ router.post('/register', [
       );
     }
 
-    const token = jwt.sign({ userId }, process.env.JWT_SECRET || 'default-secret-change-in-production', {
+    const token = jwt.sign({ userId }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRES_IN || '7d',
     });
 
@@ -99,7 +99,7 @@ router.post('/login', [
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET || 'default-secret-change-in-production', {
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRES_IN || '7d',
     });
 
