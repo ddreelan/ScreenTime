@@ -9,6 +9,14 @@ const { run, get } = require('../utils/database');
 
 const router = express.Router();
 
+function getJwtSecret() {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET environment variable is not configured');
+  }
+  return secret;
+}
+
 const DEFAULT_ACHIEVEMENTS = [
   { title: 'First Steps', description: 'Complete your first activity', icon: 'star', category: 'activity', progressTarget: 1 },
   { title: 'Week Warrior', description: 'Stay within screen time limit for 7 days', icon: 'calendar', category: 'streak', progressTarget: 7 },
@@ -71,7 +79,7 @@ router.post('/register', [
       );
     }
 
-    const token = jwt.sign({ userId }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ userId }, getJwtSecret(), {
       expiresIn: process.env.JWT_EXPIRES_IN || '7d',
     });
 
@@ -99,7 +107,7 @@ router.post('/login', [
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ userId: user.id }, getJwtSecret(), {
       expiresIn: process.env.JWT_EXPIRES_IN || '7d',
     });
 

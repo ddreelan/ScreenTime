@@ -215,9 +215,15 @@ struct AddEditAppConfigView: View {
                 leading: Button("Cancel") { dismiss() },
                 trailing: Button("Save") {
                     let effectValue = configType == .reward ? minutesPerMinute : -minutesPerMinute
+                    // Sanitize bundle ID: keep only alphanumeric, hyphens, and periods
+                    let sanitizedName = appName
+                        .lowercased()
+                        .components(separatedBy: CharacterSet.alphanumerics.union(CharacterSet(charactersIn: ".-")).inverted)
+                        .joined(separator: ".")
+                    let generatedBundleID = "com.app.\(sanitizedName.isEmpty ? "app" : sanitizedName)"
                     let config = AppConfig(
                         id: existingConfig?.id ?? UUID(),
-                        bundleIdentifier: bundleID.isEmpty ? "com.app.\(appName.lowercased().replacingOccurrences(of: " ", with: "."))" : bundleID,
+                        bundleIdentifier: bundleID.isEmpty ? generatedBundleID : bundleID,
                         appName: appName,
                         appIcon: selectedIcon,
                         configType: configType,

@@ -50,6 +50,8 @@ class ActivityViewModel(application: Application) : AndroidViewModel(application
 
     private val accelerometerListener = object : SensorEventListener {
         private var motionCount = 0
+        // 12 m/s² ≈ gravity (9.8) + meaningful hand movement; filters out minor vibrations
+        private val MOTION_DETECTION_THRESHOLD = 12f
         override fun onSensorChanged(event: SensorEvent) {
             if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) {
                 val magnitude = sqrt(
@@ -57,7 +59,7 @@ class ActivityViewModel(application: Application) : AndroidViewModel(application
                     event.values[1] * event.values[1] +
                     event.values[2] * event.values[2]
                 )
-                if (magnitude > 12f) {
+                if (magnitude > MOTION_DETECTION_THRESHOLD) {
                     motionCount++
                     val progress = motionCount.toFloat() / (requiredTaps * 5)
                     _verificationProgress.value = minOf(1f, progress)
