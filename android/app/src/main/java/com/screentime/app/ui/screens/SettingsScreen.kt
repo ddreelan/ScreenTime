@@ -163,7 +163,7 @@ fun AddEditAppDialog(
     val effectiveType = existingConfig?.configType ?: configType
     var appName by remember { mutableStateOf(existingConfig?.appName ?: "") }
     var packageName by remember { mutableStateOf(existingConfig?.packageName ?: "") }
-    var minutesPerMinute by remember { mutableFloatStateOf(existingConfig?.let { Math.abs(it.minutesPerMinute).toFloat() } ?: 1.0f) }
+    var minutesPerMinute by remember { mutableFloatStateOf(existingConfig?.let { kotlin.math.abs(it.minutesPerMinute).toFloat() } ?: 1.0f) }
 
     AlertDialog(
         onDismissRequest = onDismiss,

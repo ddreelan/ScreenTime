@@ -39,7 +39,7 @@ class ScreenTimeRepository(
         val today = todayStartMillis()
         // Get existing or create new summary - use a simple approach since we can't collect in suspend
         val penaltySeconds = if (appConfig?.configType == AppConfigType.PENALTY) {
-            (durationSeconds * Math.abs(appConfig.minutesPerMinute)).toLong()
+            (durationSeconds * kotlin.math.abs(appConfig.minutesPerMinute)).toLong()
         } else 0L
 
         // We'll handle this through the ViewModel which has access to the current summary

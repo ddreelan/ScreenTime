@@ -50,7 +50,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         viewModelScope.launch {
             val current = todaySummary.value
             val penalty = if (appConfig?.configType == AppConfigType.PENALTY) {
-                (durationSeconds * Math.abs(appConfig.minutesPerMinute)).toLong()
+                (durationSeconds * kotlin.math.abs(appConfig.minutesPerMinute)).toLong()
             } else 0L
             repository.updateSummary(current.copy(
                 totalUsedSeconds = current.totalUsedSeconds + durationSeconds,
