@@ -1,0 +1,29 @@
+# ─── iOS build artifacts ─────────────────────────────────────────────────────
+ios/ScreenTime/.build/
+ios/ScreenTime/*.xcodeproj/xcuserdata/
+ios/ScreenTime/*.xcworkspace/
+ios/ScreenTime/DerivedData/
+ios/**/*.o
+ios/**/*.d
+
+# ─── Android build artifacts ─────────────────────────────────────────────────
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+android/**/*.apk
+android/**/*.aab
+
+# ─── Backend ──────────────────────────────────────────────────────────────────
+backend/node_modules/
+backend/coverage/
+backend/data/screentime.db
+backend/.env
+
+# ─── General ──────────────────────────────────────────────────────────────────
+.DS_Store
+*.log
+*.swp
+*~
+.idea/
+.vscode/
