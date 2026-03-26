@@ -1,6 +1,7 @@
 'use strict';
 
 const express = require('express');
+const { version } = require('../package.json');
 const helmet = require('helmet');
 const cors = require('cors');
 const morgan = require('morgan');
@@ -45,6 +46,11 @@ app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(morgan('combined', {
   stream: { write: (msg) => logger.info(msg.trim()) },
 }));
+
+// Root route
+app.get('/', (req, res) => {
+  res.json({ name: 'ScreenTime API', version, status: 'ok' });
+});
 
 // Health check
 app.get('/health', (req, res) => {
