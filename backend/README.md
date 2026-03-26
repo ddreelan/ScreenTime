@@ -16,10 +16,20 @@ A Node.js/Express REST API providing backend services for the ScreenTime mobile 
 ```bash
 cd backend
 cp .env.example .env
-# Edit .env with your JWT_SECRET
+```
+
+Open `.env` and replace the `JWT_SECRET` placeholder with a real secret. You can generate one with:
+```bash
+openssl rand -base64 64
+```
+
+Then install dependencies and start the server:
+```bash
 npm install
 npm run dev
 ```
+
+> **Note:** The server will refuse to start if `JWT_SECRET` is not set. Make sure you edit `.env` before running `npm run dev`.
 
 ## API Endpoints
 
