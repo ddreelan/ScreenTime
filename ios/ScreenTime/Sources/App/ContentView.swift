@@ -1,8 +1,10 @@
 import SwiftUI
 
-struct ContentView: View {
+public struct ContentView: View {
     @EnvironmentObject var dataStore: DataStore
     @State private var selectedTab = 0
+
+    public init() {}
 
     var body: some View {
         TabView(selection: $selectedTab) {

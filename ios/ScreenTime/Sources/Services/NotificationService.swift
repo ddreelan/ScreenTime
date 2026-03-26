@@ -1,14 +1,14 @@
 import Foundation
 import UserNotifications
 
-class NotificationService: ObservableObject {
-    static let shared = NotificationService()
+public class NotificationService: ObservableObject {
+    public static let shared = NotificationService()
 
     @Published var isAuthorized = false
 
     private init() {}
 
-    func requestPermission() {
+    public func requestPermission() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { [weak self] granted, _ in
             DispatchQueue.main.async {
                 self?.isAuthorized = granted

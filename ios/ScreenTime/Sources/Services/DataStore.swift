@@ -1,8 +1,8 @@
 import Foundation
 import Combine
 
-class DataStore: ObservableObject {
-    static let shared = DataStore()
+public class DataStore: ObservableObject {
+    public static let shared = DataStore()
 
     @Published var userProfile: UserProfile?
     @Published var appConfigs: [AppConfig] = []

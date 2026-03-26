@@ -1,6 +1,8 @@
 import SwiftUI
+import ScreenTime
 
-struct ScreenTimeApp: App {
+@main
+struct ScreenTimeAppApp: App {
     @StateObject private var dataStore = DataStore.shared
     @StateObject private var screenTimeService = ScreenTimeService.shared
     @StateObject private var notificationService = NotificationService.shared

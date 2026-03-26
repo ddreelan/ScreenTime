@@ -1,8 +1,8 @@
 import Foundation
 import Combine
 
-class ScreenTimeService: ObservableObject {
-    static let shared = ScreenTimeService()
+public class ScreenTimeService: ObservableObject {
+    public static let shared = ScreenTimeService()
 
     @Published var isTracking = false
     @Published var currentAppTime: TimeInterval = 0
@@ -16,7 +16,7 @@ class ScreenTimeService: ObservableObject {
         updateRemainingTime()
     }
 
-    func startTracking() {
+    public func startTracking() {
         guard !isTracking else { return }
         isTracking = true
         let timer = Timer(timeInterval: 1.0, repeats: true) { [weak self] _ in
