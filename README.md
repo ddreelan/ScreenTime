@@ -112,10 +112,20 @@ cd android
 ```bash
 cd backend
 cp .env.example .env
-# Set a strong JWT_SECRET in .env
+```
+
+Open `.env` and replace the `JWT_SECRET` placeholder with a real secret. You can generate one with:
+```bash
+openssl rand -base64 64
+```
+
+Then install dependencies and start the server:
+```bash
 npm install
 npm run dev
 ```
+
+> **Note:** The server will refuse to start if `JWT_SECRET` is not set. Make sure you edit `.env` before running `npm run dev`.
 
 ### API Base URL
 `http://localhost:3000/api/v1`
