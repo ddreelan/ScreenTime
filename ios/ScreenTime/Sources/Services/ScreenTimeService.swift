@@ -8,6 +8,11 @@ class ScreenTimeService: ObservableObject {
     @Published var currentAppTime: TimeInterval = 0
     @Published var remainingTime: TimeInterval = 0
 
+    /// Set this to the bundle ID of the app currently being used
+    /// (e.g. "com.instagram.instagram") to apply reward/penalty multipliers.
+    /// Set to nil when no specific app is active.
+    var activeAppBundleID: String? = nil
+
     private var trackingTimer: Timer?
     private var dataStore: DataStore { DataStore.shared }
     private var cancellables = Set<AnyCancellable>()
@@ -32,9 +37,29 @@ class ScreenTimeService: ObservableObject {
         trackingTimer = nil
     }
 
+    /// Call this when the user starts using a specific app.
+    func setActiveApp(bundleID: String?) {
+        activeAppBundleID = bundleID
+    }
+
     private func tick() {
         currentAppTime += 1
+
+        // Look up the active app config (if any)
+        let activeConfig = activeAppBundleID.flatMap { id in
+            dataStore.appConfigs.first { $0.bundleIdentifier == id && $0.isEnabled }
+        }
+
+        // Always add 1 second of base usage
         dataStore.todaySummary.totalUsed += 1
+
+        // Apply penalty multiplier if the active app is a penalty app.
+        // e.g. minutesPerMinute = -1.5 means 1 second of use costs 1.5 extra seconds.
+        if let config = activeConfig, config.configType == .penalty {
+            let penaltyPerSecond = abs(config.minutesPerMinute) * 60
+            dataStore.todaySummary.totalPenalty += penaltyPerSecond
+        }
+
         dataStore.saveSummary()
         updateRemainingTime()
 
