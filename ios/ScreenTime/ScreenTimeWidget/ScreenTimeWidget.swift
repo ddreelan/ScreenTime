@@ -217,8 +217,9 @@ struct MediumWidgetView: View {
     }
 
     private var progressValue: Double {
-        guard data.totalAllocated + data.totalEarned > 0 else { return 0 }
-        return min(1.0, max(0, 1.0 - (data.totalUsed / (data.totalAllocated + data.totalEarned))))
+        let total = data.totalAllocated + data.totalEarned
+        guard total > 0 else { return 0 }
+        return min(1.0, max(0, data.remainingSeconds / total))
     }
 
     private var remainingColor: Color {
