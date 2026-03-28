@@ -270,7 +270,7 @@ struct ShortcutSetupView: View {
                             EmptyView()
                         }
 
-                        StepView(number: 3, title: "Add a status check then the Start URL", description: "Tap 'Create New Shortcut' -> add 'Get Contents of URL' -> paste the Status URL -> add an 'If' block -> set condition to: input Contains 'ready' -> inside the If block, add another 'Get Contents of URL' -> paste the Start URL. No other actions needed.") {
+                        StepView(number: 3, title: "Add a status check then the Start URL", description: "Tap 'Create New Shortcut' \u{2192} add 'Get Contents of URL' \u{2192} paste the Status URL \u{2192} add an 'If' block \u{2192} set condition to: input Contains 'ready' \u{2192} inside the If block, add another 'Get Contents of URL' \u{2192} paste the Start URL. No other actions needed.") {
                             VStack(spacing: 8) {
                                 URLCopyRow(label: "Status URL", urlString: statusURLString)
                                 URLCopyRow(label: "Start URL", urlString: startURLString)
@@ -281,7 +281,7 @@ struct ShortcutSetupView: View {
                             EmptyView()
                         }
 
-                        StepView(number: 5, title: "Repeat for Close", description: "Create a second automation: App -> \(config.appName) -> tick 'Is Closed' only -> add 'Get Contents of URL' -> paste the Stop URL. Set to 'Run Immediately'. No status check needed for close.") {
+                        StepView(number: 5, title: "Repeat for Close", description: "Create a second automation: App \u{2192} \(config.appName) \u{2192} tick 'Is Closed' only \u{2192} add 'Get Contents of URL' \u{2192} paste the Stop URL. Set to 'Run Immediately'. No status check needed for close.") {
                             URLCopyRow(label: "Stop URL", urlString: stopURLString)
                         }
                     }

@@ -48,6 +48,7 @@ struct ScreenTimeApp: App {
 @MainActor
 class URLHandler {
     static let shared = URLHandler()
+    private init() {}
 
     func handle(_ url: URL, screenTimeService: ScreenTimeService) {
         guard url.scheme == "screentime" else { return }
