@@ -124,6 +124,40 @@ fun SettingsScreen(
                 onDelete = { viewModel.deleteAppConfig(config.id) }
             )
         }
+
+        // Default Usage Penalty
+        item {
+            var defaultPenaltyRate by remember { mutableFloatStateOf(1.0f) }
+            var defaultPenaltyText by remember { mutableStateOf("1.0") }
+
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Default Usage Penalty", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                    Text("Rate applied when using unconfigured apps", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("Effect: -${String.format("%.1f", defaultPenaltyRate)} min/min", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)
+                    Slider(
+                        value = defaultPenaltyRate,
+                        onValueChange = { defaultPenaltyRate = it; viewModel.saveDefaultPenaltyRate(-it.toDouble()) },
+                        valueRange = 0.0f..5.0f,
+                        steps = 49
+                    )
+                    OutlinedTextField(
+                        value = defaultPenaltyText,
+                        onValueChange = { newValue ->
+                            defaultPenaltyText = newValue
+                            val parsed = newValue.toFloatOrNull()
+                            if (parsed != null && parsed in 0.0f..5.0f) {
+                                defaultPenaltyRate = parsed
+                                viewModel.saveDefaultPenaltyRate(-parsed.toDouble())
+                            }
+                        },
+                        label = { Text("Precise value") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+        }
     }
 
     if (showAddReward) {

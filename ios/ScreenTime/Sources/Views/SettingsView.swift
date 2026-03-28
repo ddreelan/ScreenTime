@@ -7,6 +7,7 @@ struct SettingsView: View {
     @State private var showingEditApp: AppConfig?
     @State private var pendingPickedConfig: AppConfig?
     @State private var shortcutSetupConfig: AppConfig?
+    @State private var defaultPenaltyText: String = "1.0"
 
     private let sheetDismissalDelay: Double = 0.35
 
@@ -95,6 +96,40 @@ struct SettingsView: View {
                         Label("Add Penalty App", systemImage: "plus.circle.fill")
                             .foregroundColor(.red)
                     }
+                }
+
+                // Default Usage Penalty Section
+                Section(header: Text("Default Usage Penalty")) {
+                    Text("Rate applied when using unconfigured apps")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    HStack {
+                        Text("-\(String(format: "%.1f", abs(viewModel.defaultPenaltyRate)))")
+                            .foregroundColor(.red)
+                            .font(.headline)
+                            .frame(width: 50)
+                        Slider(value: Binding(
+                            get: { abs(viewModel.defaultPenaltyRate) },
+                            set: { viewModel.defaultPenaltyRate = -$0 }
+                        ), in: 0.0...5.0, step: 0.1)
+                    }
+                    HStack {
+                        Text("Precise value:")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        TextField("0.0-5.0", text: $defaultPenaltyText)
+                            .keyboardType(.decimalPad)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .frame(width: 80)
+                            .onChange(of: defaultPenaltyText) { newValue in
+                                if let val = Double(newValue), val >= 0.0, val <= 5.0 {
+                                    viewModel.defaultPenaltyRate = -val
+                                }
+                            }
+                    }
+                    Text("0.0 = no penalty, 5.0 = heavy penalty for untracked usage")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
                 }
 
                 // Notifications Section

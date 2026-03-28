@@ -48,6 +48,16 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    fun saveDefaultPenaltyRate(rate: Double) {
+        viewModelScope.launch {
+            val current = userProfile.value ?: UserProfile(name = "User", age = 18)
+            repository.saveUserProfile(current.copy(
+                defaultPenaltyRate = rate,
+                updatedAt = System.currentTimeMillis()
+            ))
+        }
+    }
+
     fun saveUserProfile(name: String, age: Int, goals: List<String>) {
         viewModelScope.launch {
             val current = userProfile.value ?: UserProfile(name = name, age = age)
