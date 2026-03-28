@@ -164,8 +164,11 @@ struct BarChartView: View {
     }
 }
 
+// MARK: - Fix: use @ObservedObject directly on the singleton so any
+// change to appConfigs always triggers a re-render, regardless of
+// whether the environment object was injected by the parent.
 struct AppUsageBreakdownView: View {
-    @EnvironmentObject var dataStore: DataStore
+    @ObservedObject private var dataStore = DataStore.shared
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -180,11 +183,24 @@ struct AppUsageBreakdownView: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
             } else {
-                ForEach(rewardApps.prefix(3)) { app in
-                    AppBreakdownRow(config: app)
+                if !rewardApps.isEmpty {
+                    Text("Reward Apps")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .textCase(.uppercase)
+                    ForEach(rewardApps) { app in
+                        AppBreakdownRow(config: app)
+                    }
                 }
-                ForEach(penaltyApps.prefix(3)) { app in
-                    AppBreakdownRow(config: app)
+                if !penaltyApps.isEmpty {
+                    Text("Penalty Apps")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .textCase(.uppercase)
+                        .padding(.top, 4)
+                    ForEach(penaltyApps) { app in
+                        AppBreakdownRow(config: app)
+                    }
                 }
             }
         }
@@ -200,11 +216,9 @@ struct AppBreakdownRow: View {
 
     var body: some View {
         HStack {
-            if let icon = config.appIcon {
-                Image(systemName: icon)
-                    .foregroundColor(config.configType == .reward ? .green : .red)
-                    .frame(width: 28)
-            }
+            Image(systemName: config.appIcon ?? "app.fill")
+                .foregroundColor(config.configType == .reward ? .green : .red)
+                .frame(width: 28)
             Text(config.appName)
                 .font(.subheadline)
             Spacer()
