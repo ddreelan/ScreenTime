@@ -8,14 +8,20 @@ class ScreenTimeService: ObservableObject {
     @Published var currentAppTime: TimeInterval = 0
     @Published var remainingTime: TimeInterval = 0
 
-    /// Set this to the bundle ID of the app currently being used
-    /// (e.g. "com.google.ios.youtube") to apply reward/penalty multipliers.
+    /// Set this to the bundle ID of the app currently being used.
     /// Set to nil when no specific app is active.
     var activeAppBundleID: String? = nil
 
     private var trackingTimer: Timer?
     private var dataStore: DataStore { DataStore.shared }
     private var cancellables = Set<AnyCancellable>()
+
+    /// Tracks how many seconds have elapsed for the current active app session,
+    /// used to calculate total earned/cost for the periodic update notification.
+    private var activeAppSessionSeconds: TimeInterval = 0
+
+    /// How often (in seconds) to send a running update notification while an app is active.
+    private let updateNotificationInterval: TimeInterval = 300 // 5 minutes
 
     private init() {
         updateRemainingTime()
@@ -37,9 +43,22 @@ class ScreenTimeService: ObservableObject {
         trackingTimer = nil
     }
 
-    /// Call this when the user declares they are starting to use a specific app.
+    /// Call this when the user declares they are starting or stopping a specific app.
     func setActiveApp(bundleID: String?) {
         activeAppBundleID = bundleID
+        activeAppSessionSeconds = 0
+
+        // Send an immediate notification when a reward/penalty app is started
+        if let id = bundleID,
+           let config = dataStore.appConfigs.first(where: { $0.bundleIdentifier == id && $0.isEnabled }),
+           config.configType != .neutral {
+            NotificationService.shared.sendAppStartedNotification(
+                appName: config.appName,
+                configType: config.configType,
+                ratePerMinute: config.minutesPerMinute,
+                remainingSeconds: remainingTime
+            )
+        }
     }
 
     private func tick() {
@@ -57,15 +76,27 @@ class ScreenTimeService: ObservableObject {
         if let config = activeConfig {
             switch config.configType {
             case .reward:
-                // e.g. minutesPerMinute = 1.5 means 1 second of use earns 1.5 extra seconds
                 let rewardPerSecond = config.minutesPerMinute * 60
                 dataStore.todaySummary.totalEarned += rewardPerSecond
+                activeAppSessionSeconds += rewardPerSecond
             case .penalty:
-                // e.g. minutesPerMinute = -1.5 means 1 second of use costs 1.5 extra seconds
                 let penaltyPerSecond = abs(config.minutesPerMinute) * 60
                 dataStore.todaySummary.totalPenalty += penaltyPerSecond
+                activeAppSessionSeconds += penaltyPerSecond
             case .neutral:
                 break
+            }
+
+            // Send a running update every 5 minutes while the app is active
+            if config.configType != .neutral,
+               activeAppSessionSeconds > 0,
+               currentAppTime.truncatingRemainder(dividingBy: updateNotificationInterval) == 0 {
+                NotificationService.shared.sendAppUpdateNotification(
+                    appName: config.appName,
+                    configType: config.configType,
+                    earnedOrCostSeconds: activeAppSessionSeconds,
+                    remainingSeconds: remainingTime
+                )
             }
         }
 
