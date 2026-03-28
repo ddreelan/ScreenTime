@@ -300,7 +300,7 @@ struct DailyTimelineChartView: View {
                             let segmentColor: Color = {
                                 if dataPoints[index + 1].delta > 0 { return .green }
                                 if dataPoints[index + 1].delta < 0 { return .red }
-                                return Color(.darkGray)
+                                return Color.gray
                             }()
 
                             Path { path in
