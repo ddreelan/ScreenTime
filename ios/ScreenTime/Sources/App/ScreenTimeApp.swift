@@ -19,7 +19,6 @@ struct ScreenTimeApp: App {
                     LocalServer.shared.start()
                 }
                 .onOpenURL { url in
-                    // Keep URL scheme as fallback for manual testing
                     handleIncomingURL(url)
                 }
         }
