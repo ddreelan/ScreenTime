@@ -7,9 +7,8 @@ struct ScreenTimeApp: App {
     @StateObject private var screenTimeService = ScreenTimeService.shared
     @StateObject private var notificationService = NotificationService.shared
 
-    /// When true, the next startApp URL is ignored because we triggered
-    /// the app open ourselves to return the user after tracking started.
-    @State private var ignoringNextStart = false
+    /// Stored as a class-level property so it reliably persists between URL calls.
+    private let urlHandler = URLHandler()
 
     var body: some Scene {
         WindowGroup {
@@ -23,24 +22,29 @@ struct ScreenTimeApp: App {
                     LocalServer.shared.start()
                 }
                 .onOpenURL { url in
-                    handleIncomingURL(url)
+                    urlHandler.handle(url, screenTimeService: screenTimeService)
                 }
         }
     }
+}
 
-    private func handleIncomingURL(_ url: URL) {
+/// Handles incoming deep links with loop-prevention logic.
+/// Lives as a class so its state reliably persists across calls.
+@MainActor
+class URLHandler {
+    private var ignoringNextStart = false
+
+    func handle(_ url: URL, screenTimeService: ScreenTimeService) {
         guard url.scheme == "screentime" else { return }
 
         switch url.host?.lowercased() {
         case "startapp":
-            // Skip if we opened the app ourselves to return the user
             if ignoringNextStart {
                 ignoringNextStart = false
                 return
             }
             if let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
                let bundleID = components.queryItems?.first(where: { $0.name == "bundleID" })?.value {
-                // Only start if not already tracking this exact app
                 guard screenTimeService.activeAppBundleID != bundleID else { return }
                 screenTimeService.setActiveApp(bundleID: bundleID)
                 if !screenTimeService.isTracking {
@@ -66,7 +70,6 @@ struct ScreenTimeApp: App {
             "com.reddit.reddit": "reddit://",
             "com.netflix.Netflix": "nflx://",
             "com.spotify.client": "spotify://",
-            "com.apple.mobilemail": "message://",
             "com.apple.mobilesafari": "https://",
             "com.tiktok.TikTok": "snssdk1128://",
             "com.zhiliaoapp.musically": "snssdk1128://",
@@ -76,8 +79,7 @@ struct ScreenTimeApp: App {
 
         let scheme = knownSchemes[bundleID] ?? "\(bundleID)://"
 
-        // Set the flag BEFORE opening the app so it's ready when the
-        // automation fires again
+        // Set flag BEFORE the delay so it's ready when the automation fires
         ignoringNextStart = true
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -85,16 +87,13 @@ struct ScreenTimeApp: App {
                UIApplication.shared.canOpenURL(url) {
                 UIApplication.shared.open(url, options: [:], completionHandler: nil)
             } else {
-                // If we couldn't open the app, clear the flag so future
-                // legitimate opens aren't accidentally ignored
-                ignoringNextStart = false
+                self.ignoringNextStart = false
             }
         }
 
-        // Safety reset — if the automation never fires again (e.g. app
-        // didn't reopen), clear the flag after 3 seconds
+        // Safety reset after 3 seconds in case the automation never fires
         DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-            ignoringNextStart = false
+            self.ignoringNextStart = false
         }
     }
 }
