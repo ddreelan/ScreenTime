@@ -6,23 +6,42 @@ struct ScreenTimeApp: App {
     @StateObject private var dataStore = DataStore.shared
     @StateObject private var screenTimeService = ScreenTimeService.shared
     @StateObject private var notificationService = NotificationService.shared
+    @StateObject private var authService = AuthService.shared
 
+    @State private var showSplash = true
     private let urlHandler = URLHandler()
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environmentObject(dataStore)
-                .environmentObject(screenTimeService)
-                .environmentObject(notificationService)
-                .onAppear {
-                    notificationService.requestPermission()
-                    screenTimeService.startTracking()
-                    LocalServer.shared.start()
+            Group {
+                if showSplash {
+                    SplashView()
+                        .onAppear {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2.2) {
+                                withAnimation {
+                                    showSplash = false
+                                }
+                            }
+                        }
+                } else if !authService.isAuthenticated {
+                    SignInView()
+                        .environmentObject(authService)
+                } else {
+                    ContentView()
+                        .environmentObject(dataStore)
+                        .environmentObject(screenTimeService)
+                        .environmentObject(notificationService)
+                        .environmentObject(authService)
+                        .onAppear {
+                            notificationService.requestPermission()
+                            screenTimeService.startTracking()
+                            LocalServer.shared.start()
+                        }
+                        .onOpenURL { url in
+                            urlHandler.handle(url, screenTimeService: screenTimeService)
+                        }
                 }
-                .onOpenURL { url in
-                    urlHandler.handle(url, screenTimeService: screenTimeService)
-                }
+            }
         }
     }
 }

@@ -7,6 +7,7 @@ struct SettingsView: View {
     @State private var showingEditApp: AppConfig?
     @State private var pendingPickedConfig: AppConfig?
     @State private var shortcutSetupConfig: AppConfig?
+    @State private var defaultPenaltyText: String = "1.0"
 
     private let sheetDismissalDelay: Double = 0.35
 
@@ -95,6 +96,40 @@ struct SettingsView: View {
                         Label("Add Penalty App", systemImage: "plus.circle.fill")
                             .foregroundColor(.red)
                     }
+                }
+
+                // Default Usage Penalty Section
+                Section(header: Text("Default Usage Penalty")) {
+                    Text("Rate applied when using unconfigured apps")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    HStack {
+                        Text("-\(String(format: "%.1f", abs(viewModel.defaultPenaltyRate)))")
+                            .foregroundColor(.red)
+                            .font(.headline)
+                            .frame(width: 50)
+                        Slider(value: Binding(
+                            get: { abs(viewModel.defaultPenaltyRate) },
+                            set: { viewModel.defaultPenaltyRate = -$0 }
+                        ), in: 0.0...5.0, step: 0.1)
+                    }
+                    HStack {
+                        Text("Precise value:")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        TextField("0.0-5.0", text: $defaultPenaltyText)
+                            .keyboardType(.decimalPad)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .frame(width: 80)
+                            .onChange(of: defaultPenaltyText) { newValue in
+                                if let val = Double(newValue), val >= 0.0, val <= 5.0 {
+                                    viewModel.defaultPenaltyRate = -val
+                                }
+                            }
+                    }
+                    Text("0.0 = no penalty, 5.0 = heavy penalty for untracked usage")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
                 }
 
                 // Notifications Section
@@ -424,9 +459,16 @@ struct AddEditAppConfigView: View {
     @State private var minutesPerMinute: Double = 1.0
     @State private var isEnabled: Bool = true
     @State private var category: String = "Other"
+    @State private var minutesPerMinuteText: String = "1.0"
+    @State private var minutesPerMinuteTextIsValid: Bool = true
 
-    let icons = ["app.fill", "heart.fill", "figure.walk", "book.fill", "brain.head.profile",
-                 "camera.fill", "play.rectangle.fill", "music.note", "gamecontroller.fill", "safari.fill"]
+    let icons = [
+        "app.fill", "heart.fill", "figure.walk", "figure.run", "book.fill",
+        "brain.head.profile", "camera.fill", "play.rectangle.fill", "music.note",
+        "gamecontroller.fill", "safari.fill", "bubble.left.fill", "person.2.fill",
+        "headphones", "music.note.list", "character.book.closed.fill", "dumbbell.fill",
+        "sun.max.fill", "leaf.fill", "paintbrush.fill"
+    ]
 
     init(configType: AppConfigType = .reward, existingConfig: AppConfig? = nil, isNewFromPicker: Bool = false, onSave: @escaping (AppConfig) -> Void) {
         self.existingConfig = existingConfig
@@ -441,6 +483,7 @@ struct AddEditAppConfigView: View {
             _minutesPerMinute = State(initialValue: abs(config.minutesPerMinute))
             _isEnabled = State(initialValue: config.isEnabled)
             _category = State(initialValue: config.category)
+            _minutesPerMinuteText = State(initialValue: String(format: "%.1f", abs(config.minutesPerMinute)))
         }
     }
 
@@ -496,6 +539,31 @@ struct AddEditAppConfigView: View {
                             .font(.headline)
                             .frame(width: 60)
                         Slider(value: $minutesPerMinute, in: 0.1...5.0, step: 0.1)
+                            .onChange(of: minutesPerMinute) { newValue in
+                                minutesPerMinuteText = String(format: "%.1f", newValue)
+                                minutesPerMinuteTextIsValid = true
+                            }
+                    }
+                    HStack {
+                        Text("Precise value:")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        TextField("0.1-5.0", text: $minutesPerMinuteText)
+                            .keyboardType(.decimalPad)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .frame(width: 80)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(minutesPerMinuteTextIsValid ? Color.clear : Color.red, lineWidth: 1)
+                            )
+                            .onChange(of: minutesPerMinuteText) { newValue in
+                                if let val = Double(newValue), val >= 0.1, val <= 5.0 {
+                                    minutesPerMinute = val
+                                    minutesPerMinuteTextIsValid = true
+                                } else {
+                                    minutesPerMinuteTextIsValid = newValue.isEmpty
+                                }
+                            }
                     }
                     Text("Each minute using this app \(configType == .reward ? "earns" : "costs") \(String(format: "%.1f", minutesPerMinute)) extra minute(s) of screen time")
                         .font(.caption)

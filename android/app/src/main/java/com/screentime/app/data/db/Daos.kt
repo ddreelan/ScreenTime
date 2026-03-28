@@ -9,6 +9,9 @@ interface UserProfileDao {
     @Query("SELECT * FROM user_profiles LIMIT 1")
     fun getProfile(): Flow<UserProfile?>
 
+    @Query("SELECT * FROM user_profiles LIMIT 1")
+    suspend fun getProfileDirect(): UserProfile?
+
     @Upsert
     suspend fun upsert(profile: UserProfile)
 }
@@ -23,6 +26,9 @@ interface AppConfigDao {
 
     @Upsert
     suspend fun upsert(config: AppConfig)
+
+    @Query("SELECT * FROM app_configs")
+    suspend fun getAllConfigsDirect(): List<AppConfig>
 
     @Delete
     suspend fun delete(config: AppConfig)
@@ -45,6 +51,12 @@ interface ScreenTimeDao {
     @Upsert
     suspend fun upsertSummary(summary: DailyScreenTimeSummary)
 
+    @Query("SELECT * FROM daily_summaries WHERE date = :date LIMIT 1")
+    suspend fun getSummaryForDateDirect(date: Long): DailyScreenTimeSummary?
+
+    @Query("SELECT * FROM daily_summaries ORDER BY date DESC LIMIT 30")
+    suspend fun getRecentSummariesDirect(): List<DailyScreenTimeSummary>
+
     @Query("SELECT * FROM screen_time_entries WHERE date = :date ORDER BY startTime DESC")
     fun getEntriesForDate(date: Long): Flow<List<ScreenTimeEntry>>
 
@@ -56,6 +68,9 @@ interface ScreenTimeDao {
 interface ActivityDao {
     @Query("SELECT * FROM activities ORDER BY startTime DESC")
     fun getAllActivities(): Flow<List<ActivityRecord>>
+
+    @Query("SELECT * FROM activities")
+    suspend fun getAllDirect(): List<ActivityRecord>
 
     @Query("SELECT * FROM activities WHERE startTime >= :startOfDay ORDER BY startTime DESC")
     fun getTodayActivities(startOfDay: Long): Flow<List<ActivityRecord>>
@@ -72,6 +87,9 @@ interface AchievementDao {
     @Query("SELECT * FROM achievements ORDER BY isUnlocked DESC, title ASC")
     fun getAllAchievements(): Flow<List<Achievement>>
 
+    @Query("SELECT * FROM achievements")
+    suspend fun getAllDirect(): List<Achievement>
+
     @Upsert
     suspend fun upsert(achievement: Achievement)
 
@@ -80,4 +98,16 @@ interface AchievementDao {
 
     @Query("SELECT COUNT(*) FROM achievements")
     suspend fun count(): Int
+}
+
+@Dao
+interface TimelineDao {
+    @Query("SELECT * FROM timeline_data_points WHERE timestamp >= :startOfDay ORDER BY timestamp ASC")
+    fun getTodayTimeline(startOfDay: Long): Flow<List<TimelineDataPoint>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(point: TimelineDataPoint)
+
+    @Query("DELETE FROM timeline_data_points WHERE timestamp < :cutoff")
+    suspend fun deleteOlderThan(cutoff: Long)
 }

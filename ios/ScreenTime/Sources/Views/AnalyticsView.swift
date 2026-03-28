@@ -43,6 +43,11 @@ struct AnalyticsView: View {
                     AppUsageBreakdownView()
                         .padding(.horizontal)
 
+                    // Daily timeline chart
+                    DailyTimelineChartView(dataPoints: dataStore.todayTimeline)
+                        .frame(height: 300)
+                        .padding(.horizontal)
+
                     // Achievements
                     AchievementsView(achievements: dataStore.achievements)
                         .padding(.horizontal)
@@ -191,6 +196,13 @@ struct AppUsageBreakdownView: View {
                     ForEach(rewardApps) { app in
                         AppBreakdownRow(config: app)
                     }
+                    HStack {
+                        Text("Total Reward Apps: \(rewardApps.count)")
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.green)
+                        Spacer()
+                    }
                 }
                 if !penaltyApps.isEmpty {
                     Text("Penalty Apps")
@@ -200,6 +212,13 @@ struct AppUsageBreakdownView: View {
                         .padding(.top, 4)
                     ForEach(penaltyApps) { app in
                         AppBreakdownRow(config: app)
+                    }
+                    HStack {
+                        Text("Total Penalty Apps: \(penaltyApps.count)")
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.red)
+                        Spacer()
                     }
                 }
             }
@@ -226,6 +245,149 @@ struct AppBreakdownRow: View {
                 .font(.caption)
                 .foregroundColor(config.configType == .reward ? .green : .red)
         }
+    }
+}
+
+// MARK: - Daily Timeline Chart (7B + 7C)
+
+struct DailyTimelineChartView: View {
+    let dataPoints: [TimelineDataPoint]
+    @State private var selectedIndex: Int? = nil
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Daily Timeline")
+                .font(.headline)
+
+            if dataPoints.isEmpty {
+                Text("No timeline data yet. Data is recorded every 30 seconds while tracking.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, minHeight: 180, alignment: .center)
+            } else {
+                ZStack(alignment: .topLeading) {
+                    GeometryReader { geometry in
+                        let width = geometry.size.width
+                        let height: CGFloat = 180
+
+                        // Y-axis range
+                        let maxMinutes = (dataPoints.map { $0.remainingSeconds }.max() ?? 3600) / 60.0
+                        let yMax = max(maxMinutes * 1.1, 1)
+
+                        // Draw the line chart
+                        Path { path in
+                            for (index, point) in dataPoints.enumerated() {
+                                let x = dataPoints.count > 1
+                                    ? width * CGFloat(index) / CGFloat(dataPoints.count - 1)
+                                    : width / 2
+                                let y = height - CGFloat(point.remainingSeconds / 60.0 / yMax) * height
+                                if index == 0 {
+                                    path.move(to: CGPoint(x: x, y: y))
+                                } else {
+                                    path.addLine(to: CGPoint(x: x, y: y))
+                                }
+                            }
+                        }
+                        .stroke(Color.blue, lineWidth: 2)
+
+                        // Color-coded segments
+                        ForEach(0..<max(0, dataPoints.count - 1), id: \.self) { index in
+                            let x1 = width * CGFloat(index) / CGFloat(max(1, dataPoints.count - 1))
+                            let x2 = width * CGFloat(index + 1) / CGFloat(max(1, dataPoints.count - 1))
+                            let y1 = height - CGFloat(dataPoints[index].remainingSeconds / 60.0 / yMax) * height
+                            let y2 = height - CGFloat(dataPoints[index + 1].remainingSeconds / 60.0 / yMax) * height
+
+                            let segmentColor: Color = {
+                                if dataPoints[index + 1].delta > 0 { return .green }
+                                if dataPoints[index + 1].delta < 0 { return .red }
+                                return Color.gray
+                            }()
+
+                            Path { path in
+                                path.move(to: CGPoint(x: x1, y: y1))
+                                path.addLine(to: CGPoint(x: x2, y: y2))
+                            }
+                            .stroke(segmentColor, lineWidth: 2.5)
+                        }
+
+                        // Selected point indicator
+                        if let idx = selectedIndex, idx < dataPoints.count {
+                            let x = dataPoints.count > 1
+                                ? width * CGFloat(idx) / CGFloat(dataPoints.count - 1)
+                                : width / 2
+                            let y = height - CGFloat(dataPoints[idx].remainingSeconds / 60.0 / yMax) * height
+                            Circle()
+                                .fill(Color.blue)
+                                .frame(width: 8, height: 8)
+                                .position(x: x, y: y)
+                        }
+
+                        // Drag gesture for interactivity (7C)
+                        Color.clear
+                            .contentShape(Rectangle())
+                            .gesture(
+                                DragGesture(minimumDistance: 0)
+                                    .onChanged { value in
+                                        guard !dataPoints.isEmpty else { return }
+                                        let fraction = value.location.x / width
+                                        let idx = Int(round(fraction * CGFloat(dataPoints.count - 1)))
+                                        selectedIndex = max(0, min(dataPoints.count - 1, idx))
+                                    }
+                                    .onEnded { _ in
+                                        selectedIndex = nil
+                                    }
+                            )
+                    }
+                    .frame(height: 180)
+
+                    // Tooltip overlay
+                    if let idx = selectedIndex, idx < dataPoints.count {
+                        let point = dataPoints[idx]
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(timeLabel(for: point.timestamp))
+                                .font(.caption2)
+                                .fontWeight(.semibold)
+                            Text("\(Int(point.remainingSeconds / 60))m remaining")
+                                .font(.caption2)
+                            if let app = point.activeAppName {
+                                Text(app)
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        .padding(6)
+                        .background(Color(.systemBackground).opacity(0.95))
+                        .cornerRadius(6)
+                        .shadow(radius: 2)
+                    }
+                }
+
+                // X-axis labels
+                HStack {
+                    if let first = dataPoints.first {
+                        Text(timeLabel(for: first.timestamp))
+                            .font(.system(size: 9))
+                            .foregroundColor(.secondary)
+                    }
+                    Spacer()
+                    if let last = dataPoints.last {
+                        Text(timeLabel(for: last.timestamp))
+                            .font(.system(size: 9))
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+        }
+        .padding()
+        .background(Color(.systemBackground))
+        .cornerRadius(12)
+        .shadow(color: .black.opacity(0.05), radius: 5)
+    }
+
+    private func timeLabel(for date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "h:mm a"
+        return formatter.string(from: date)
     }
 }
 

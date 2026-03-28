@@ -11,6 +11,7 @@ class SettingsViewModel: ObservableObject {
     @Published var dailyLimitMinutes: Double = 0.0
     @Published var isAddingApp: Bool = false
     @Published var editingConfig: AppConfig?
+    @Published var defaultPenaltyRate: Double = -1.0
 
     private var cancellables = Set<AnyCancellable>()
     private let dataStore = DataStore.shared
@@ -27,6 +28,14 @@ class SettingsViewModel: ObservableObject {
                 self?.appConfigs = configs
                 self?.rewardApps = configs.filter { $0.configType == .reward }
                 self?.penaltyApps = configs.filter { $0.configType == .penalty }
+            }
+            .store(in: &cancellables)
+
+        $defaultPenaltyRate
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] rate in
+                self?.dataStore.defaultPenaltyRate = rate
             }
             .store(in: &cancellables)
 
@@ -47,6 +56,7 @@ class SettingsViewModel: ObservableObject {
         rewardApps = appConfigs.filter { $0.configType == .reward }
         penaltyApps = appConfigs.filter { $0.configType == .penalty }
         userProfile = dataStore.userProfile
+        defaultPenaltyRate = dataStore.defaultPenaltyRate
     }
 
     func addOrUpdateAppConfig(_ config: AppConfig) {

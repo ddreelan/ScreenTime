@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.screentime.app.data.model.*
 import com.screentime.app.viewmodel.DashboardViewModel
+import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -35,6 +36,10 @@ fun DashboardScreen(
     val summary by viewModel.todaySummary.collectAsState()
     val activities by viewModel.todayActivities.collectAsState()
     val motivationalMessage by viewModel.motivationalMessage.collectAsState()
+
+    var activeQuickStart by remember { mutableStateOf<ActivityType?>(null) }
+    var quickStartElapsed by remember { mutableLongStateOf(0L) }
+    var quickStartRunning by remember { mutableStateOf(false) }
 
     LazyColumn(
         modifier = Modifier
@@ -105,8 +110,45 @@ fun DashboardScreen(
         }
 
         item {
-            QuickStartSection()
+            QuickStartSection(onQuickStart = { activityType ->
+                activeQuickStart = activityType
+                quickStartElapsed = 0L
+                quickStartRunning = false
+            })
         }
+    }
+
+    activeQuickStart?.let { activityType ->
+        QuickStartBottomSheet(
+            activityType = activityType,
+            elapsed = quickStartElapsed,
+            isRunning = quickStartRunning,
+            onElapsedUpdate = { quickStartElapsed = it },
+            onRunningChange = { quickStartRunning = it },
+            onStopAndSave = {
+                val durationSeconds = quickStartElapsed
+                val baseReward = activityType.rewardMinutes * 60.0
+                val durationMultiplier = minOf(durationSeconds / (15.0 * 60.0), 2.0)
+                val rewardSeconds = (baseReward * durationMultiplier).toLong()
+
+                val activity = ActivityRecord(
+                    type = activityType,
+                    startTime = System.currentTimeMillis() - (durationSeconds * 1000),
+                    endTime = System.currentTimeMillis(),
+                    durationSeconds = durationSeconds,
+                    verificationMethod = VerificationMethod.MANUAL,
+                    status = ActivityStatus.VERIFIED,
+                    rewardEarnedSeconds = rewardSeconds
+                )
+                viewModel.saveActivityAndEarnTime(activity, rewardSeconds)
+                quickStartRunning = false
+                activeQuickStart = null
+            },
+            onDismiss = {
+                quickStartRunning = false
+                activeQuickStart = null
+            }
+        )
     }
 }
 
@@ -219,7 +261,7 @@ fun ActivityRowCard(activity: ActivityRecord) {
 }
 
 @Composable
-fun QuickStartSection() {
+fun QuickStartSection(onQuickStart: (ActivityType) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text("Quick Start", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
         Row(
@@ -232,11 +274,19 @@ fun QuickStartSection() {
                 Triple("Meditate", Icons.Default.SelfImprovement, Color(0xFF9C27B0)),
                 Triple("Run", Icons.Default.DirectionsRun, Color(0xFFFF9800))
             ).forEach { (label, icon, color) ->
+                val activityType = when (label) {
+                    "Walk" -> ActivityType.WALKING
+                    "Read" -> ActivityType.READING
+                    "Meditate" -> ActivityType.MEDITATION
+                    "Run" -> ActivityType.RUNNING
+                    else -> ActivityType.CUSTOM
+                }
                 QuickActionButton(
                     modifier = Modifier.weight(1f),
                     label = label,
                     icon = icon,
-                    color = color
+                    color = color,
+                    onClick = { onQuickStart(activityType) }
                 )
             }
         }
@@ -244,8 +294,8 @@ fun QuickStartSection() {
 }
 
 @Composable
-fun QuickActionButton(modifier: Modifier = Modifier, label: String, icon: androidx.compose.ui.graphics.vector.ImageVector, color: Color) {
-    Card(modifier = modifier, colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.1f))) {
+fun QuickActionButton(modifier: Modifier = Modifier, label: String, icon: androidx.compose.ui.graphics.vector.ImageVector, color: Color, onClick: () -> Unit) {
+    Card(modifier = modifier, colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.1f)), onClick = onClick) {
         Column(
             modifier = Modifier.padding(8.dp).fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -253,6 +303,90 @@ fun QuickActionButton(modifier: Modifier = Modifier, label: String, icon: androi
         ) {
             Icon(icon, contentDescription = label, tint = color, modifier = Modifier.size(28.dp))
             Text(label, style = MaterialTheme.typography.bodySmall, color = color)
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun QuickStartBottomSheet(
+    activityType: ActivityType,
+    elapsed: Long,
+    isRunning: Boolean,
+    onElapsedUpdate: (Long) -> Unit,
+    onRunningChange: (Boolean) -> Unit,
+    onStopAndSave: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    LaunchedEffect(isRunning, elapsed) {
+        if (isRunning) {
+            delay(1000L)
+            onElapsedUpdate(elapsed + 1)
+        }
+    }
+
+    val mins = elapsed / 60
+    val secs = elapsed % 60
+    val elapsedFormatted = String.format("%02d:%02d", mins, secs)
+
+    val baseReward = activityType.rewardMinutes * 60.0
+    val durationMultiplier = minOf(elapsed / (15.0 * 60.0), 2.0)
+    val estimatedRewardMinutes = (baseReward * durationMultiplier) / 60.0
+
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Icon(
+                imageVector = when (activityType) {
+                    ActivityType.WALKING -> Icons.Default.DirectionsWalk
+                    ActivityType.RUNNING -> Icons.Default.DirectionsRun
+                    ActivityType.READING -> Icons.Default.MenuBook
+                    ActivityType.MEDITATION -> Icons.Default.SelfImprovement
+                    ActivityType.CYCLING -> Icons.Default.DirectionsBike
+                    ActivityType.EXERCISE -> Icons.Default.FitnessCenter
+                    else -> Icons.Default.Star
+                },
+                contentDescription = null,
+                modifier = Modifier.size(64.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+
+            Text(activityType.displayName, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+
+            Text(elapsedFormatted, style = MaterialTheme.typography.displayMedium, fontWeight = FontWeight.Bold)
+
+            Text(
+                "Earning: +${String.format("%.1f", estimatedRewardMinutes)}m",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color(0xFF4CAF50)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            if (!isRunning) {
+                Button(
+                    onClick = { onRunningChange(true) },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+                ) {
+                    Text("Start", style = MaterialTheme.typography.titleMedium)
+                }
+            } else {
+                Button(
+                    onClick = onStopAndSave,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Stop & Save", style = MaterialTheme.typography.titleMedium)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }

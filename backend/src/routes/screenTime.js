@@ -139,4 +139,68 @@ function toClientSummary(row) {
   };
 }
 
+// POST /api/v1/screen-time/timeline
+router.post('/timeline', authenticate, [
+  body('timestamp').isInt(),
+  body('remainingSeconds').isFloat(),
+  body('activeAppName').optional({ nullable: true }).isString(),
+  body('activeAppPackageName').optional({ nullable: true }).isString(),
+  body('delta').isFloat(),
+], async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+    const { timestamp, remainingSeconds, activeAppName, activeAppPackageName, delta } = req.body;
+    const id = uuidv4();
+    await run(
+      'INSERT INTO timeline_data_points (id, user_id, timestamp, remaining_seconds, active_app_name, active_app_package_name, delta) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [id, req.userId, timestamp, remainingSeconds, activeAppName || null, activeAppPackageName || null, delta]
+    );
+    res.status(201).json({ id, message: 'Timeline point recorded' });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/v1/screen-time/timeline?date=YYYY-MM-DD
+router.get('/timeline', authenticate, [
+  query('date').optional().isISO8601(),
+], async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+    let startOfDay, endOfDay;
+    if (req.query.date) {
+      const d = new Date(req.query.date);
+      d.setHours(0, 0, 0, 0);
+      startOfDay = d.getTime();
+      d.setHours(23, 59, 59, 999);
+      endOfDay = d.getTime();
+    } else {
+      const d = new Date();
+      d.setHours(0, 0, 0, 0);
+      startOfDay = d.getTime();
+      endOfDay = Date.now();
+    }
+
+    const points = await all(
+      'SELECT * FROM timeline_data_points WHERE user_id = ? AND timestamp >= ? AND timestamp <= ? ORDER BY timestamp ASC',
+      [req.userId, startOfDay, endOfDay]
+    );
+
+    res.json(points.map(p => ({
+      id: p.id,
+      timestamp: p.timestamp,
+      remainingSeconds: p.remaining_seconds,
+      activeAppName: p.active_app_name,
+      activeAppPackageName: p.active_app_package_name,
+      delta: p.delta,
+    })));
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;

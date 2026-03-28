@@ -1,8 +1,11 @@
 package com.screentime.app.ui.screens
 
+import android.graphics.drawable.Drawable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -10,8 +13,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.screentime.app.data.model.*
 import com.screentime.app.viewmodel.SettingsViewModel
@@ -117,6 +124,40 @@ fun SettingsScreen(
                 onDelete = { viewModel.deleteAppConfig(config.id) }
             )
         }
+
+        // Default Usage Penalty
+        item {
+            var defaultPenaltyRate by remember { mutableFloatStateOf(1.0f) }
+            var defaultPenaltyText by remember { mutableStateOf("1.0") }
+
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Default Usage Penalty", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                    Text("Rate applied when using unconfigured apps", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("Effect: -${String.format("%.1f", defaultPenaltyRate)} min/min", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)
+                    Slider(
+                        value = defaultPenaltyRate,
+                        onValueChange = { defaultPenaltyRate = it; viewModel.saveDefaultPenaltyRate(-it.toDouble()) },
+                        valueRange = 0.0f..5.0f,
+                        steps = 49
+                    )
+                    OutlinedTextField(
+                        value = defaultPenaltyText,
+                        onValueChange = { newValue ->
+                            defaultPenaltyText = newValue
+                            val parsed = newValue.toFloatOrNull()
+                            if (parsed != null && parsed in 0.0f..5.0f) {
+                                defaultPenaltyRate = parsed
+                                viewModel.saveDefaultPenaltyRate(-parsed.toDouble())
+                            }
+                        },
+                        label = { Text("Precise value") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+        }
     }
 
     if (showAddReward) {
@@ -133,12 +174,28 @@ fun SettingsScreen(
 @Composable
 fun AppConfigCard(config: AppConfig, onEdit: () -> Unit, onToggle: () -> Unit, onDelete: () -> Unit) {
     val accentColor = if (config.configType == AppConfigType.REWARD) Color(0xFF4CAF50) else MaterialTheme.colorScheme.error
+    val context = LocalContext.current
+    val appIcon: Drawable? = remember(config.packageName) {
+        try {
+            context.packageManager.getApplicationIcon(config.packageName)
+        } catch (_: Exception) {
+            null
+        }
+    }
 
     Card(modifier = Modifier.fillMaxWidth(), onClick = onEdit) {
         Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Surface(shape = MaterialTheme.shapes.small, color = accentColor.copy(alpha = 0.1f), modifier = Modifier.size(40.dp)) {
                 Box(contentAlignment = Alignment.Center) {
-                    Icon(Icons.Default.Apps, contentDescription = null, tint = accentColor, modifier = Modifier.size(20.dp))
+                    if (appIcon != null) {
+                        Image(
+                            bitmap = appIcon.toBitmap(40, 40).asImageBitmap(),
+                            contentDescription = config.appName,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    } else {
+                        Icon(Icons.Default.Apps, contentDescription = null, tint = accentColor, modifier = Modifier.size(20.dp))
+                    }
                 }
             }
             Column(modifier = Modifier.weight(1f)) {
@@ -169,11 +226,40 @@ fun AddEditAppDialog(
         onDismissRequest = onDismiss,
         title = { Text(if (existingConfig != null) "Edit App" else "Add ${if (effectiveType == AppConfigType.REWARD) "Reward" else "Penalty"} App") },
         text = {
+            var minutesPerMinuteText by remember { mutableStateOf(String.format("%.1f", minutesPerMinute)) }
+            var textIsValid by remember { mutableStateOf(true) }
+
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(value = appName, onValueChange = { appName = it }, label = { Text("App Name") }, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(value = packageName, onValueChange = { packageName = it }, label = { Text("Package Name") }, modifier = Modifier.fillMaxWidth())
                 Text("Time effect: ${String.format("%.1f", minutesPerMinute)} min/min", style = MaterialTheme.typography.bodyMedium)
-                Slider(value = minutesPerMinute, onValueChange = { minutesPerMinute = it }, valueRange = 0.1f..5.0f, steps = 48)
+                Slider(
+                    value = minutesPerMinute,
+                    onValueChange = {
+                        minutesPerMinute = it
+                        minutesPerMinuteText = String.format("%.1f", it)
+                        textIsValid = true
+                    },
+                    valueRange = 0.1f..5.0f,
+                    steps = 48
+                )
+                OutlinedTextField(
+                    value = minutesPerMinuteText,
+                    onValueChange = { newValue ->
+                        minutesPerMinuteText = newValue
+                        val parsed = newValue.toFloatOrNull()
+                        if (parsed != null && parsed in 0.1f..5.0f) {
+                            minutesPerMinute = parsed
+                            textIsValid = true
+                        } else {
+                            textIsValid = newValue.isEmpty()
+                        }
+                    },
+                    label = { Text("Precise value") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    isError = !textIsValid,
+                    modifier = Modifier.fillMaxWidth()
+                )
                 Text(
                     "Each minute using this app ${if (effectiveType == AppConfigType.REWARD) "earns" else "costs"} ${String.format("%.1f", minutesPerMinute)} extra minute(s)",
                     style = MaterialTheme.typography.bodySmall,

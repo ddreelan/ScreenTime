@@ -72,15 +72,22 @@ class ScreenTimeService: ObservableObject {
         // Always add 1 second of base usage
         dataStore.todaySummary.totalUsed += 1
 
+        // Self-app exemption: skip all reward/penalty logic for ScreenTime itself
+        if activeAppBundleID == Bundle.main.bundleIdentifier {
+            dataStore.saveSummary()
+            updateRemainingTime()
+            return
+        }
+
         // Apply reward or penalty multiplier based on the active app config
         if let config = activeConfig {
             switch config.configType {
             case .reward:
-                let rewardPerSecond = config.minutesPerMinute * 60
+                let rewardPerSecond = config.minutesPerMinute / 60.0
                 dataStore.todaySummary.totalEarned += rewardPerSecond
                 activeAppSessionSeconds += rewardPerSecond
             case .penalty:
-                let penaltyPerSecond = abs(config.minutesPerMinute) * 60
+                let penaltyPerSecond = abs(config.minutesPerMinute) / 60.0
                 dataStore.todaySummary.totalPenalty += penaltyPerSecond
                 activeAppSessionSeconds += penaltyPerSecond
             case .neutral:
@@ -98,10 +105,37 @@ class ScreenTimeService: ObservableObject {
                     remainingSeconds: remainingTime
                 )
             }
+        } else if activeAppBundleID != nil {
+            // Default penalty for unconfigured apps
+            let penaltyPerSecond = abs(dataStore.defaultPenaltyRate) / 60.0
+            dataStore.todaySummary.totalPenalty += penaltyPerSecond
         }
 
         dataStore.saveSummary()
         updateRemainingTime()
+
+        // Record a timeline data point every 30 seconds
+        if Int(currentAppTime) % 30 == 0 {
+            let timelineActiveConfig = activeAppBundleID.flatMap { id in
+                dataStore.appConfigs.first { $0.bundleIdentifier == id && $0.isEnabled }
+            }
+            let delta: Double
+            if let config = timelineActiveConfig {
+                delta = config.configType == .reward ? config.minutesPerMinute / 60.0 : -(abs(config.minutesPerMinute) / 60.0)
+            } else if activeAppBundleID != nil {
+                delta = -(abs(dataStore.defaultPenaltyRate) / 60.0)
+            } else {
+                delta = 0
+            }
+            let point = TimelineDataPoint(
+                timestamp: Date(),
+                remainingSeconds: remainingTime,
+                activeAppName: timelineActiveConfig?.appName,
+                activeAppBundleID: activeAppBundleID,
+                delta: delta
+            )
+            dataStore.addTimelineDataPoint(point)
+        }
 
         if remainingTime <= 0 {
             NotificationService.shared.sendLimitReachedNotification()

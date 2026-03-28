@@ -14,7 +14,8 @@ object RepositoryProvider {
                 appConfigDao = db.appConfigDao(),
                 screenTimeDao = db.screenTimeDao(),
                 activityDao = db.activityDao(),
-                achievementDao = db.achievementDao()
+                achievementDao = db.achievementDao(),
+                timelineDao = db.timelineDao()
             ).also { repository = it }
         }
     }

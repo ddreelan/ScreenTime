@@ -68,6 +68,7 @@ async function initializeDatabase() {
       name TEXT NOT NULL,
       age INTEGER DEFAULT 0,
       daily_screen_time_limit INTEGER DEFAULT 7200,
+      default_penalty_rate REAL DEFAULT -1.0,
       goals TEXT DEFAULT '[]',
       created_at INTEGER NOT NULL,
       updated_at INTEGER NOT NULL
@@ -156,6 +157,20 @@ async function initializeDatabase() {
   await run('CREATE INDEX IF NOT EXISTS idx_activities_user ON activities(user_id)');
   await run('CREATE INDEX IF NOT EXISTS idx_daily_summaries_user_date ON daily_summaries(user_id, date)');
   await run('CREATE INDEX IF NOT EXISTS idx_app_configs_user ON app_configs(user_id)');
+
+  await run(`
+    CREATE TABLE IF NOT EXISTS timeline_data_points (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      timestamp INTEGER NOT NULL,
+      remaining_seconds REAL NOT NULL DEFAULT 0,
+      active_app_name TEXT,
+      active_app_package_name TEXT,
+      delta REAL NOT NULL DEFAULT 0
+    )
+  `);
+
+  await run('CREATE INDEX IF NOT EXISTS idx_timeline_user_ts ON timeline_data_points(user_id, timestamp)');
 
   logger.info('Database schema initialized.');
 }

@@ -117,4 +117,139 @@ router.post('/login', [
   }
 });
 
+// POST /api/v1/auth/oauth/google
+router.post('/oauth/google', [
+  body('idToken').optional().isString().notEmpty(),
+  body('code').optional().isString().notEmpty(),
+], async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { idToken, code } = req.body;
+    if (!idToken && !code) {
+      return res.status(400).json({ error: 'Either idToken or code is required' });
+    }
+
+    // TODO: Validate the Google idToken or exchange the authorization code
+    // 1. If idToken: verify with Google's tokeninfo endpoint or google-auth-library
+    // 2. If code: exchange at https://oauth2.googleapis.com/token for tokens
+    // 3. Extract user email and profile from the verified token
+
+    const email = 'google-oauth-placeholder@example.com';
+    const name = 'Google User';
+
+    let user = await get('SELECT * FROM users WHERE email = ?', [email]);
+    if (!user) {
+      const userId = uuidv4();
+      const now = Date.now();
+      await run(
+        'INSERT INTO users (id, email, password_hash, name, age, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [userId, email, 'oauth-no-password', name, 0, now, now]
+      );
+      user = { id: userId, email, name };
+    }
+
+    const token = jwt.sign({ userId: user.id }, getJwtSecret(), {
+      expiresIn: process.env.JWT_EXPIRES_IN || '7d',
+    });
+
+    res.json({ token, userId: user.id, name: user.name || name, email: user.email || email });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/v1/auth/oauth/apple
+router.post('/oauth/apple', [
+  body('idToken').optional().isString().notEmpty(),
+  body('code').optional().isString().notEmpty(),
+], async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { idToken, code } = req.body;
+    if (!idToken && !code) {
+      return res.status(400).json({ error: 'Either idToken or code is required' });
+    }
+
+    // TODO: Validate the Apple idToken or exchange the authorization code
+    // 1. If idToken: verify JWT signature using Apple's public keys from https://appleid.apple.com/auth/keys
+    // 2. If code: exchange at https://appleid.apple.com/auth/token
+    // 3. Extract user email from the verified identity token
+
+    const email = 'apple-oauth-placeholder@example.com';
+    const name = 'Apple User';
+
+    let user = await get('SELECT * FROM users WHERE email = ?', [email]);
+    if (!user) {
+      const userId = uuidv4();
+      const now = Date.now();
+      await run(
+        'INSERT INTO users (id, email, password_hash, name, age, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [userId, email, 'oauth-no-password', name, 0, now, now]
+      );
+      user = { id: userId, email, name };
+    }
+
+    const token = jwt.sign({ userId: user.id }, getJwtSecret(), {
+      expiresIn: process.env.JWT_EXPIRES_IN || '7d',
+    });
+
+    res.json({ token, userId: user.id, name: user.name || name, email: user.email || email });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/v1/auth/oauth/facebook
+router.post('/oauth/facebook', [
+  body('idToken').optional().isString().notEmpty(),
+  body('code').optional().isString().notEmpty(),
+], async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { idToken, code } = req.body;
+    if (!idToken && !code) {
+      return res.status(400).json({ error: 'Either idToken or code is required' });
+    }
+
+    // TODO: Validate the Facebook token or exchange the authorization code
+    // 1. If idToken: verify via https://graph.facebook.com/debug_token
+    // 2. If code: exchange at https://graph.facebook.com/v18.0/oauth/access_token
+    // 3. Fetch user profile from https://graph.facebook.com/me?fields=id,name,email
+
+    const email = 'facebook-oauth-placeholder@example.com';
+    const name = 'Facebook User';
+
+    let user = await get('SELECT * FROM users WHERE email = ?', [email]);
+    if (!user) {
+      const userId = uuidv4();
+      const now = Date.now();
+      await run(
+        'INSERT INTO users (id, email, password_hash, name, age, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [userId, email, 'oauth-no-password', name, 0, now, now]
+      );
+      user = { id: userId, email, name };
+    }
+
+    const token = jwt.sign({ userId: user.id }, getJwtSecret(), {
+      expiresIn: process.env.JWT_EXPIRES_IN || '7d',
+    });
+
+    res.json({ token, userId: user.id, name: user.name || name, email: user.email || email });
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;
