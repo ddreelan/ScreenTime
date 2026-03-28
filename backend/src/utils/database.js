@@ -70,6 +70,9 @@ async function initializeDatabase() {
       daily_screen_time_limit INTEGER DEFAULT 7200,
       default_penalty_rate REAL DEFAULT -1.0,
       goals TEXT DEFAULT '[]',
+      email_verified INTEGER NOT NULL DEFAULT 0,
+      email_verification_token TEXT,
+      email_verification_expires INTEGER,
       created_at INTEGER NOT NULL,
       updated_at INTEGER NOT NULL
     )

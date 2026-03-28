@@ -1,6 +1,21 @@
 import SwiftUI
 import AuthenticationServices
 
+// MARK: - ASWebAuthenticationSession context provider
+
+class OAuthContextProvider: NSObject, ASWebAuthenticationPresentationContextProviding {
+    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
+        guard let scene = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .first,
+              let window = scene.windows.first
+        else {
+            return ASPresentationAnchor()
+        }
+        return window
+    }
+}
+
 struct SignInView: View {
     @EnvironmentObject var authService: AuthService
     @State private var email = ""
@@ -9,6 +24,13 @@ struct SignInView: View {
     @State private var isRegistering = false
     @State private var errorMessage: String?
     @State private var isLoading = false
+    @State private var showVerificationAlert = false
+
+    /// Prevent ARC from deallocating the session before it completes.
+    @State private var authSession: ASWebAuthenticationSession?
+    private let contextProvider = OAuthContextProvider()
+
+    private let backendBaseURL = "http://localhost:3000"
 
     var body: some View {
         NavigationView {
@@ -118,6 +140,11 @@ struct SignInView: View {
                 .padding(.bottom, 40)
             }
             .navigationBarHidden(true)
+            .alert("Verify Your Email", isPresented: $showVerificationAlert) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text("Check your inbox — we've sent a verification link to \(email). Please verify your email to unlock full access.")
+            }
         }
     }
 
@@ -131,6 +158,7 @@ struct SignInView: View {
             do {
                 if isRegistering {
                     try await authService.register(email: email, password: password, name: name)
+                    showVerificationAlert = true
                 } else {
                     try await authService.signIn(email: email, password: password)
                 }
@@ -141,53 +169,88 @@ struct SignInView: View {
         }
     }
 
-    // MARK: - OAuth Stubs
+    // MARK: - OAuth
 
     private func signInWithGoogle() {
-        // TODO: Replace YOUR_GOOGLE_CLIENT_ID with real client ID
-        // Uses ASWebAuthenticationSession to open:
-        // https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_GOOGLE_CLIENT_ID&redirect_uri=com.screentime.app:/oauth2callback&response_type=code&scope=email%20profile
         startOAuthFlow(
-            urlString: "https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_GOOGLE_CLIENT_ID&redirect_uri=com.screentime.app:/oauth2callback&response_type=code&scope=email%20profile"
+            urlString: "https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_GOOGLE_CLIENT_ID&redirect_uri=com.screentime.app:/oauth2callback&response_type=code&scope=email%20profile",
+            provider: "google"
         )
     }
 
     private func signInWithApple() {
-        // TODO: Replace with real Apple Sign In configuration
-        // Uses ASWebAuthenticationSession for Apple OAuth
         startOAuthFlow(
-            urlString: "https://appleid.apple.com/auth/authorize?client_id=YOUR_APPLE_CLIENT_ID&redirect_uri=com.screentime.app:/oauth2callback&response_type=code&scope=email%20name"
+            urlString: "https://appleid.apple.com/auth/authorize?client_id=YOUR_APPLE_CLIENT_ID&redirect_uri=com.screentime.app:/oauth2callback&response_type=code&scope=email%20name",
+            provider: "apple"
         )
     }
 
     private func signInWithFacebook() {
-        // TODO: Replace YOUR_FACEBOOK_APP_ID with real app ID
         startOAuthFlow(
-            urlString: "https://www.facebook.com/v18.0/dialog/oauth?client_id=YOUR_FACEBOOK_APP_ID&redirect_uri=com.screentime.app:/oauth2callback&response_type=code&scope=email,public_profile"
+            urlString: "https://www.facebook.com/v18.0/dialog/oauth?client_id=YOUR_FACEBOOK_APP_ID&redirect_uri=com.screentime.app:/oauth2callback&response_type=code&scope=email,public_profile",
+            provider: "facebook"
         )
     }
 
-    private func startOAuthFlow(urlString: String) {
-        // TODO: Implement full OAuth flow with ASWebAuthenticationSession
-        // 1. Open URL with ASWebAuthenticationSession
-        // 2. Handle callback with authorization code
-        // 3. Exchange code for token via backend /api/v1/auth/oauth/{provider}
-        // 4. Set authService.isAuthenticated = true on success
+    private func startOAuthFlow(urlString: String, provider: String) {
         guard let url = URL(string: urlString) else { return }
         let session = ASWebAuthenticationSession(
             url: url,
             callbackURLScheme: "com.screentime.app"
         ) { callbackURL, error in
-            // TODO: Parse the authorization code from callbackURL
-            // TODO: Send code to backend for token exchange
             if let error {
                 DispatchQueue.main.async {
                     self.errorMessage = "OAuth failed: \(error.localizedDescription)"
                 }
+                return
             }
+
+            guard let callbackURL,
+                  let components = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false),
+                  let code = components.queryItems?.first(where: { $0.name == "code" })?.value else {
+                DispatchQueue.main.async {
+                    self.errorMessage = "OAuth failed: no authorization code received."
+                }
+                return
+            }
+
+            self.exchangeOAuthCode(code: code, provider: provider)
         }
+        session.presentationContextProvider = contextProvider
         session.prefersEphemeralWebBrowserSession = true
-        // TODO: Set presentationContextProvider and call session.start()
+        authSession = session
+        session.start()
+    }
+
+    private func exchangeOAuthCode(code: String, provider: String) {
+        guard let url = URL(string: "\(backendBaseURL)/api/v1/auth/oauth/\(provider)") else { return }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let body: [String: String] = ["code": code]
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                if let error {
+                    self.errorMessage = "OAuth failed: \(error.localizedDescription)"
+                    return
+                }
+
+                guard let data,
+                      let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                      let token = json["token"] as? String,
+                      let userId = json["userId"] as? String,
+                      let email = json["email"] as? String else {
+                    self.errorMessage = "OAuth failed: invalid server response."
+                    return
+                }
+
+                let emailVerified = json["emailVerified"] as? Bool ?? true
+                self.authService.oauthSignIn(token: token, userId: userId, email: email, emailVerified: emailVerified)
+            }
+        }.resume()
     }
 }
 
