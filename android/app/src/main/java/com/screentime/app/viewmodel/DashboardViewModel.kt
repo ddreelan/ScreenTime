@@ -21,6 +21,9 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     val allConfigs: StateFlow<List<AppConfig>> = repository.allAppConfigs
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    val allAchievements: StateFlow<List<Achievement>> = repository.allAchievements
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     val motivationalMessage: StateFlow<String> = todaySummary.map { summary ->
         when {
             summary.remainingSeconds <= 0 -> "Screen time limit reached! Complete activities to earn more. 💪"

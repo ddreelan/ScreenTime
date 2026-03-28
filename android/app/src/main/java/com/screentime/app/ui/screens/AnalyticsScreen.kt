@@ -1,6 +1,8 @@
 package com.screentime.app.ui.screens
 
 import android.graphics.drawable.Drawable
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -21,6 +23,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
@@ -36,6 +39,7 @@ fun AnalyticsScreen(
     viewModel: DashboardViewModel = viewModel()
 ) {
     val allConfigs by viewModel.allConfigs.collectAsState()
+    val allAchievements by viewModel.allAchievements.collectAsState()
     var selectedDays by remember { mutableIntStateOf(7) }
 
     LazyColumn(
@@ -104,15 +108,9 @@ fun AnalyticsScreen(
             DailyTimelineChart(dataPoints = emptyList())
         }
 
-        // Achievements (placeholder section)
+        // Achievements (collapsible section)
         item {
-            Card(modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text("Getting Started", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text("Track your activities and stay within your screen time limits to earn achievements and unlock rewards!", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            }
+            AchievementsSection(achievements = allAchievements)
         }
     }
 }
@@ -295,5 +293,120 @@ fun AppBreakdownRow(config: AppConfig) {
         Spacer(modifier = Modifier.width(8.dp))
         Text(config.appName, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
         Text(config.effectDescription, style = MaterialTheme.typography.bodySmall, color = color)
+    }
+}
+
+@Composable
+fun AchievementsSection(achievements: List<Achievement>) {
+    var isExpanded by remember { mutableStateOf(false) }
+
+    val topAchievements = remember(achievements) {
+        achievements
+            .filter { !it.isUnlocked }
+            .sortedByDescending { it.progress }
+            .take(5)
+    }
+
+    val displayedAchievements = if (isExpanded) achievements else topAchievements
+    val hasMore = achievements.any { it.isUnlocked } || achievements.count { !it.isUnlocked } > 5
+
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth().clickable(role = Role.Button) { isExpanded = !isExpanded },
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Achievements", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                Icon(
+                    if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                    contentDescription = if (isExpanded) "Collapse" else "Expand",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            if (achievements.isEmpty()) {
+                Text(
+                    "Track your activities and stay within your screen time limits to earn achievements and unlock rewards!",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            } else {
+                displayedAchievements.forEach { achievement ->
+                    AchievementRow(achievement = achievement)
+                }
+
+                AnimatedVisibility(visible = !isExpanded && hasMore) {
+                    TextButton(onClick = { isExpanded = true }, modifier = Modifier.fillMaxWidth()) {
+                        Text("Show All Achievements")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun AchievementRow(achievement: Achievement) {
+    val rewardLabel = remember(achievement.timeRewardSeconds) {
+        val seconds = achievement.timeRewardSeconds
+        if (seconds >= 3600) {
+            val hours = seconds / 3600
+            val mins = (seconds % 3600) / 60
+            if (mins > 0) "+${hours}h ${mins}m" else "+${hours}h"
+        } else {
+            "+${seconds / 60}m"
+        }
+    }
+
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Icon(
+            if (achievement.isUnlocked) Icons.Default.EmojiEvents else Icons.Default.Lock,
+            contentDescription = null,
+            tint = if (achievement.isUnlocked) Color(0xFFFFC107) else MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(28.dp)
+        )
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                achievement.title,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
+                color = if (achievement.isUnlocked) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                achievement.description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        Column(horizontalAlignment = Alignment.End) {
+            Text(
+                rewardLabel,
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.SemiBold,
+                color = if (achievement.isUnlocked) Color(0xFF4CAF50) else Color(0xFFFF9800)
+            )
+            if (!achievement.isUnlocked && achievement.progressTarget > 1) {
+                Spacer(modifier = Modifier.height(4.dp))
+                LinearProgressIndicator(
+                    progress = { achievement.progress },
+                    modifier = Modifier.width(60.dp),
+                    color = MaterialTheme.colorScheme.primary
+                )
+            } else if (achievement.isUnlocked) {
+                Icon(
+                    Icons.Default.CheckCircle,
+                    contentDescription = "Unlocked",
+                    tint = Color(0xFF4CAF50),
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+        }
     }
 }
