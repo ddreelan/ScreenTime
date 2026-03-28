@@ -35,11 +35,43 @@ struct ScreenTimeApp: App {
                 if !screenTimeService.isTracking {
                     screenTimeService.startTracking()
                 }
+                // Return to the tracked app after a brief delay
+                returnToApp(bundleID: bundleID)
             }
         case "stopapp":
             screenTimeService.setActiveApp(bundleID: nil)
         default:
             break
+        }
+    }
+
+    private func returnToApp(bundleID: String) {
+        // Known URL schemes for popular apps
+        let knownSchemes: [String: String] = [
+            "com.google.ios.youtube": "youtube://",
+            "com.instagram.mainapp": "instagram://",
+            "com.burbn.instagram": "instagram://",
+            "com.facebook.Facebook": "fb://",
+            "com.atebits.Tweetie2": "twitter://",
+            "com.twitter.twitter-iphone": "twitter://",
+            "com.reddit.reddit": "reddit://",
+            "com.netflix.Netflix": "nflx://",
+            "com.spotify.client": "spotify://",
+            "com.apple.mobilemail": "message://",
+            "com.apple.mobilesafari": "https://",
+            "com.tiktok.TikTok": "snssdk1128://",
+            "com.zhiliaoapp.musically": "snssdk1128://",
+            "com.discord.discord": "discord://",
+            "com.snapchat.snapchat": "snapchat://",
+        ]
+
+        let scheme = knownSchemes[bundleID] ?? "\(bundleID)://"
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            if let url = URL(string: scheme),
+               UIApplication.shared.canOpenURL(url) {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            }
         }
     }
 }
