@@ -86,7 +86,7 @@ function generateAppleClientSecret() {
   const payload = {
     iss: process.env.APPLE_TEAM_ID,
     iat: now,
-    exp: now + 15777000,
+    exp: now + 15552000,
     aud: 'https://appleid.apple.com',
     sub: process.env.APPLE_CLIENT_ID,
   };
@@ -405,7 +405,7 @@ router.post('/oauth/apple', [
           client_secret: clientSecret,
           code,
           grant_type: 'authorization_code',
-          redirect_uri: process.env.GOOGLE_REDIRECT_URI || 'com.screentime.app:/oauth2callback',
+          redirect_uri: process.env.APPLE_REDIRECT_URI || 'com.screentime.app:/oauth2callback',
         }).toString(),
       });
       const tokenData = await tokenRes.json();
@@ -463,8 +463,9 @@ router.post('/oauth/facebook', [
     let fbAccessToken = accessToken;
 
     if (code) {
+      const fbRedirectUri = process.env.FACEBOOK_REDIRECT_URI || 'com.screentime.app://oauth2callback';
       const tokenRes = await fetch(
-        `https://graph.facebook.com/v18.0/oauth/access_token?client_id=${encodeURIComponent(process.env.FACEBOOK_APP_ID)}&redirect_uri=${encodeURIComponent('com.screentime.app://oauth2callback')}&client_secret=${encodeURIComponent(process.env.FACEBOOK_APP_SECRET)}&code=${encodeURIComponent(code)}`
+        `https://graph.facebook.com/v18.0/oauth/access_token?client_id=${encodeURIComponent(process.env.FACEBOOK_APP_ID)}&redirect_uri=${encodeURIComponent(fbRedirectUri)}&client_secret=${encodeURIComponent(process.env.FACEBOOK_APP_SECRET)}&code=${encodeURIComponent(code)}`
       );
       const tokenData = await tokenRes.json();
       if (!tokenRes.ok || !tokenData.access_token) {

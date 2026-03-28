@@ -247,7 +247,8 @@ struct SignInView: View {
                     return
                 }
 
-                self.authService.oauthSignIn(token: token, userId: userId, email: email)
+                let emailVerified = json["emailVerified"] as? Bool ?? true
+                self.authService.oauthSignIn(token: token, userId: userId, email: email, emailVerified: emailVerified)
             }
         }.resume()
     }

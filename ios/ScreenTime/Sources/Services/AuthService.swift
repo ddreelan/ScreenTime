@@ -68,6 +68,7 @@ class AuthService: ObservableObject {
     func oauthSignIn(token: String, userId: String, email: String, emailVerified: Bool = true) {
         let trimmedEmail = email.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
         saveSessionToken(for: trimmedEmail)
+        saveJWTToken(token)
         isAuthenticated = true
         currentUserEmail = trimmedEmail
         self.emailVerified = emailVerified
@@ -76,6 +77,12 @@ class AuthService: ObservableObject {
 
     func signOut() {
         deleteSessionToken()
+        let jwtQuery: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+            kSecAttrAccount as String: "jwt"
+        ]
+        SecItemDelete(jwtQuery as CFDictionary)
         isAuthenticated = false
         currentUserEmail = nil
         emailVerified = false
@@ -116,6 +123,23 @@ class AuthService: ObservableObject {
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: keychainService,
             kSecAttrAccount as String: "session",
+            kSecValueData as String: data
+        ]
+        SecItemAdd(query as CFDictionary, nil)
+    }
+
+    private func saveJWTToken(_ token: String) {
+        let deleteQuery: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+            kSecAttrAccount as String: "jwt"
+        ]
+        SecItemDelete(deleteQuery as CFDictionary)
+        guard let data = token.data(using: .utf8) else { return }
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+            kSecAttrAccount as String: "jwt",
             kSecValueData as String: data
         ]
         SecItemAdd(query as CFDictionary, nil)
