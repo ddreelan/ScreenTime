@@ -1,6 +1,7 @@
 import SwiftUI
 
 @main
+@MainActor
 struct ScreenTimeApp: App {
     @StateObject private var dataStore = DataStore.shared
     @StateObject private var screenTimeService = ScreenTimeService.shared
