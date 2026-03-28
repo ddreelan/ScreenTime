@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var dataStore: DataStore
+    @EnvironmentObject var authService: AuthService
     @State private var selectedTab = 0
 
     var body: some View {
@@ -37,5 +38,12 @@ struct ContentView: View {
                 .tag(4)
         }
         .accentColor(.blue)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button("Sign Out") {
+                    authService.signOut()
+                }
+            }
+        }
     }
 }
