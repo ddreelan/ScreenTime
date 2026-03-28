@@ -76,6 +76,67 @@ class NotificationService: ObservableObject {
         UNUserNotificationCenter.current().add(request)
     }
 
+    /// Sent immediately when the user marks a reward or penalty app as active.
+    func sendAppStartedNotification(appName: String, configType: AppConfigType, ratePerMinute: Double, remainingSeconds: TimeInterval) {
+        let content = UNMutableNotificationContent()
+        let remaining = formatTime(remainingSeconds)
+
+        switch configType {
+        case .reward:
+            content.title = "🟢 Earning Time — \(appName)"
+            content.body = "You're earning +\(formatRate(ratePerMinute)) per minute. Screen time remaining: \(remaining)."
+        case .penalty:
+            content.title = "🔴 Losing Time — \(appName)"
+            content.body = "This app costs \(formatRate(abs(ratePerMinute))) per minute. Screen time remaining: \(remaining)."
+        case .neutral:
+            return
+        }
+
+        content.sound = .default
+        // Replace any previous "app started" notification so they don't stack
+        scheduleNotification(content: content, identifier: "appStarted", delay: 0)
+    }
+
+    /// Sent every 5 minutes while a reward/penalty app is active, showing a running tally.
+    func sendAppUpdateNotification(appName: String, configType: AppConfigType, earnedOrCostSeconds: TimeInterval, remainingSeconds: TimeInterval) {
+        let content = UNMutableNotificationContent()
+        let remaining = formatTime(remainingSeconds)
+        let amount = formatTime(abs(earnedOrCostSeconds))
+
+        switch configType {
+        case .reward:
+            content.title = "🟢 Still Earning — \(appName)"
+            content.body = "+\(amount) earned so far. Screen time remaining: \(remaining)."
+        case .penalty:
+            content.title = "🔴 Still Losing Time — \(appName)"
+            content.body = "\(amount) spent so far. Screen time remaining: \(remaining)."
+        case .neutral:
+            return
+        }
+
+        content.sound = .default
+        // Use a timestamped identifier so each update shows as a fresh notification
+        scheduleNotification(content: content, identifier: "appUpdate_\(Date().timeIntervalSince1970)", delay: 0)
+    }
+
+    // MARK: - Helpers
+
+    private func formatTime(_ seconds: TimeInterval) -> String {
+        let totalMinutes = Int(abs(seconds)) / 60
+        let hours = totalMinutes / 60
+        let minutes = totalMinutes % 60
+        if hours > 0 { return "\(hours)h \(minutes)m" }
+        return "\(minutes)m"
+    }
+
+    private func formatRate(_ ratePerMinute: Double) -> String {
+        // ratePerMinute is in minutes of screen time per minute of app use
+        if ratePerMinute == Double(Int(ratePerMinute)) {
+            return "\(Int(ratePerMinute))m"
+        }
+        return String(format: "%.1fm", ratePerMinute)
+    }
+
     private func scheduleNotification(content: UNMutableNotificationContent, identifier: String, delay: TimeInterval) {
         guard isAuthorized else { return }
         let trigger = delay > 0 ? UNTimeIntervalNotificationTrigger(timeInterval: delay, repeats: false) : nil
