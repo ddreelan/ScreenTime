@@ -34,6 +34,8 @@ class ScreenTimeService: ObservableObject {
 
     private func tick() {
         currentAppTime += 1
+        dataStore.todaySummary.totalUsed += 1
+        dataStore.saveSummary()
         updateRemainingTime()
 
         if remainingTime <= 0 {
