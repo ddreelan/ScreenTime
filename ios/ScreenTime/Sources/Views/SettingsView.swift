@@ -191,26 +191,6 @@ struct ShortcutSetupView: View {
         "screentime://stopApp"
     }
 
-    /// Opens the Shortcuts app with a pre-built shortcut via the shortcuts:// URL scheme.
-    /// The shortcut simply opens the deep link URL when run.
-    private func openShortcutsForStart() {
-        // Encode the action as a Shortcuts import URL
-        // We use the x-callback-url style that Shortcuts supports for importing
-        let shortcutName = "Start \(config.appName) Tracking"
-        let encodedURL = startURLString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        let shortcutsURL = "shortcuts://x-callback-url/run-shortcut?name=\(shortcutName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")"
-
-        // Fall back to just opening Shortcuts if deep link isn't supported
-        if let url = URL(string: "shortcuts://create-shortcut"),
-           UIApplication.shared.canOpenURL(url) {
-            UIApplication.shared.open(url)
-        } else if let url = URL(string: "shortcuts://") {
-            UIApplication.shared.open(url)
-        }
-        _ = encodedURL
-        _ = shortcutsURL
-    }
-
     var body: some View {
         NavigationView {
             ScrollView {
@@ -266,19 +246,19 @@ struct ShortcutSetupView: View {
                             .tint(.blue)
                         }
 
-                        StepView(number: 2, title: "Create the "Open" automation", description: "In Shortcuts: tap Automation → + ��� App → choose \(config.appName) → tick "Is Opened" only → Next.") {
+                        StepView(number: 2, title: "Create the Open automation", description: "In Shortcuts: tap Automation → + → App → choose \(config.appName) → tick 'Is Opened' only → Next.") {
                             EmptyView()
                         }
 
-                        StepView(number: 3, title: "Add the Open URL action", description: "Tap "New Blank Automation" → search for "Open URLs" → paste the URL below as the URL value.") {
+                        StepView(number: 3, title: "Add the Open URL action", description: "Tap 'New Blank Automation' → search for 'Open URLs' → paste the URL below as the URL value.") {
                             URLCopyRow(label: "Start URL", urlString: startURLString)
                         }
 
-                        StepView(number: 4, title: "Turn off "Ask Before Running"", description: "Toggle off "Ask Before Running" and tap Done.") {
+                        StepView(number: 4, title: "Turn off Ask Before Running", description: "Toggle off 'Ask Before Running' and tap Done.") {
                             EmptyView()
                         }
 
-                        StepView(number: 5, title: "Repeat for "Close"", description: "Create a second automation: App → \(config.appName) → tick "Is Closed" only → Open URLs → paste the Stop URL below.") {
+                        StepView(number: 5, title: "Repeat for Close", description: "Create a second automation: App → \(config.appName) → tick 'Is Closed' only → Open URLs → paste the Stop URL below.") {
                             URLCopyRow(label: "Stop URL", urlString: stopURLString)
                         }
                     }
@@ -290,7 +270,7 @@ struct ShortcutSetupView: View {
                         Text("Test It")
                             .font(.headline)
                             .padding(.horizontal)
-                        Text("You can test the URLs work by tapping the buttons below. Your ScreenTime app should open and start/stop tracking.")
+                        Text("Tap the buttons below to test the URLs work. Your ScreenTime app should open and start/stop tracking.")
                             .font(.caption)
                             .foregroundColor(.secondary)
                             .padding(.horizontal)
