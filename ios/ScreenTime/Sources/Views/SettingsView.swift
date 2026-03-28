@@ -526,7 +526,7 @@ struct AddEditAppConfigView: View {
                                     minutesPerMinute = val
                                     minutesPerMinuteTextIsValid = true
                                 } else {
-                                    minutesPerMinuteTextIsValid = !(newValue.isEmpty)
+                                    minutesPerMinuteTextIsValid = newValue.isEmpty
                                 }
                             }
                     }
