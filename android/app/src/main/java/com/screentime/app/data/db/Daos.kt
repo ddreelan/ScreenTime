@@ -99,3 +99,15 @@ interface AchievementDao {
     @Query("SELECT COUNT(*) FROM achievements")
     suspend fun count(): Int
 }
+
+@Dao
+interface TimelineDao {
+    @Query("SELECT * FROM timeline_data_points WHERE timestamp >= :startOfDay ORDER BY timestamp ASC")
+    fun getTodayTimeline(startOfDay: Long): Flow<List<TimelineDataPoint>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(point: TimelineDataPoint)
+
+    @Query("DELETE FROM timeline_data_points WHERE timestamp < :cutoff")
+    suspend fun deleteOlderThan(cutoff: Long)
+}

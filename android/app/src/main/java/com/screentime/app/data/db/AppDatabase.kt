@@ -12,9 +12,10 @@ import com.screentime.app.data.model.*
         ScreenTimeEntry::class,
         DailyScreenTimeSummary::class,
         ActivityRecord::class,
-        Achievement::class
+        Achievement::class,
+        TimelineDataPoint::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -23,6 +24,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun screenTimeDao(): ScreenTimeDao
     abstract fun activityDao(): ActivityDao
     abstract fun achievementDao(): AchievementDao
+    abstract fun timelineDao(): TimelineDao
 
     companion object {
         @Volatile private var INSTANCE: AppDatabase? = null
@@ -33,7 +35,7 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "screentime_database"
-                ).build()
+                ).fallbackToDestructiveMigration().build()
                 INSTANCE = instance
                 instance
             }

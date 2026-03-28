@@ -114,6 +114,29 @@ class ScreenTimeService: ObservableObject {
         dataStore.saveSummary()
         updateRemainingTime()
 
+        // Record a timeline data point every 30 seconds
+        if Int(currentAppTime) % 30 == 0 {
+            let timelineActiveConfig = activeAppBundleID.flatMap { id in
+                dataStore.appConfigs.first { $0.bundleIdentifier == id && $0.isEnabled }
+            }
+            let delta: Double
+            if let config = timelineActiveConfig {
+                delta = config.configType == .reward ? config.minutesPerMinute / 60.0 : -(abs(config.minutesPerMinute) / 60.0)
+            } else if activeAppBundleID != nil {
+                delta = -(abs(dataStore.defaultPenaltyRate) / 60.0)
+            } else {
+                delta = 0
+            }
+            let point = TimelineDataPoint(
+                timestamp: Date(),
+                remainingSeconds: remainingTime,
+                activeAppName: timelineActiveConfig?.appName,
+                activeAppBundleID: activeAppBundleID,
+                delta: delta
+            )
+            dataStore.addTimelineDataPoint(point)
+        }
+
         if remainingTime <= 0 {
             NotificationService.shared.sendLimitReachedNotification()
         } else if remainingTime == 300 { // 5 minutes warning

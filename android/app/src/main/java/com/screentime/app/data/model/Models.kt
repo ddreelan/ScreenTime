@@ -128,6 +128,18 @@ data class Achievement(
     val progress: Float get() = minOf(1f, (progressCurrent / progressTarget).toFloat())
 }
 
+// ─── Timeline Data Point ──────────────────────────────────────────────────────
+
+@Entity(tableName = "timeline_data_points")
+data class TimelineDataPoint(
+    @PrimaryKey val id: String = UUID.randomUUID().toString(),
+    val timestamp: Long = System.currentTimeMillis(),
+    val remainingSeconds: Long = 0L,
+    val activeAppName: String? = null,
+    val activeAppPackageName: String? = null,
+    val delta: Double = 0.0
+)
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 fun todayStartMillis(): Long {

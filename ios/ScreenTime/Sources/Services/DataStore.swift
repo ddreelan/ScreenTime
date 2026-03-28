@@ -10,6 +10,7 @@ class DataStore: ObservableObject {
     @Published var weeklyHistory: [DailyScreenTimeSummary] = []
     @Published var activities: [Activity] = []
     @Published var achievements: [Achievement] = []
+    @Published var todayTimeline: [TimelineDataPoint] = []
 
     private let userDefaultsKey = "screentime_userprofile"
     private let appConfigsKey = "screentime_appconfigs"
@@ -17,6 +18,7 @@ class DataStore: ObservableObject {
     private let activitiesKey = "screentime_activities"
     private let achievementsKey = "screentime_achievements"
     private let defaultPenaltyRateKey = "screentime_default_penalty_rate"
+    private let timelineKey = "screentime_timeline"
 
     var defaultPenaltyRate: Double {
         get {
@@ -39,6 +41,9 @@ class DataStore: ObservableObject {
         appConfigs = loadObject(forKey: appConfigsKey) ?? []
         activities = loadObject(forKey: activitiesKey) ?? []
         achievements = loadObject(forKey: achievementsKey) ?? Achievement.defaultAchievements
+
+        // Load today's timeline
+        loadTimeline()
 
         // Load today's summary
         let today = Calendar.current.startOfDay(for: Date())
@@ -371,6 +376,29 @@ class DataStore: ObservableObject {
             }
         }
         return streak
+    }
+
+    // MARK: - Timeline
+
+    func addTimelineDataPoint(_ point: TimelineDataPoint) {
+        todayTimeline.append(point)
+        saveTimeline()
+    }
+
+    func loadTimeline() {
+        let today = Calendar.current.startOfDay(for: Date())
+        if let points: [TimelineDataPoint] = loadObject(forKey: timelineKey) {
+            todayTimeline = points.filter { $0.timestamp >= today }
+        } else {
+            todayTimeline = []
+        }
+    }
+
+    private func saveTimeline() {
+        // Keep only today's points
+        let today = Calendar.current.startOfDay(for: Date())
+        todayTimeline = todayTimeline.filter { $0.timestamp >= today }
+        saveObject(todayTimeline, forKey: timelineKey)
     }
 
     // MARK: - Generic persistence helpers

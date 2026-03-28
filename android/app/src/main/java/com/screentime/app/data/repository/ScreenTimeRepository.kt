@@ -10,7 +10,8 @@ class ScreenTimeRepository(
     private val appConfigDao: AppConfigDao,
     private val screenTimeDao: ScreenTimeDao,
     private val activityDao: ActivityDao,
-    private val achievementDao: AchievementDao
+    private val achievementDao: AchievementDao,
+    private val timelineDao: TimelineDao
 ) {
     // ── User Profile ─────────────────────────────────────────────────────────
     val userProfile: Flow<UserProfile?> = userProfileDao.getProfile()
@@ -59,4 +60,9 @@ class ScreenTimeRepository(
             achievementDao.insertAll(DefaultData.achievements)
         }
     }
+
+    // ── Timeline ─────────────────────────────────────────────────────────────
+    fun getTodayTimeline(): Flow<List<TimelineDataPoint>> = timelineDao.getTodayTimeline(todayStartMillis())
+    suspend fun insertTimelinePoint(point: TimelineDataPoint) = timelineDao.insert(point)
+    suspend fun cleanupOldTimelineData(cutoff: Long) = timelineDao.deleteOlderThan(cutoff)
 }
