@@ -5,6 +5,39 @@ struct SettingsView: View {
     @State private var showingAddRewardApp = false
     @State private var showingAddPenaltyApp = false
     @State private var showingEditApp: AppConfig?
+    /// Holds a pre-populated config selected from AppPickerView, waiting for rate setup.
+    @State private var pendingPickedConfig: AppConfig?
+
+    /// Delay between sheet dismissal and presenting the next sheet.
+    private let sheetDismissalDelay: Double = 0.35
+
+    /// Creates an AppConfig pre-filled from a picker selection.
+    private func pickedConfig(from app: InstalledAppInfo, configType: AppConfigType) -> AppConfig {
+        let rate: Double = configType == .reward ? 1.0 : -1.0
+        return AppConfig(
+            bundleIdentifier: app.id,
+            appName: app.name,
+            appIcon: app.sfSymbol,
+            configType: configType,
+            minutesPerMinute: rate,
+            isEnabled: true,
+            category: app.category
+        )
+    }
+
+    /// Creates a blank AppConfig for manual entry.
+    private func blankConfig(for configType: AppConfigType) -> AppConfig {
+        let rate: Double = configType == .reward ? 1.0 : -1.0
+        return AppConfig(
+            bundleIdentifier: "",
+            appName: "",
+            appIcon: "app.fill",
+            configType: configType,
+            minutesPerMinute: rate,
+            isEnabled: true,
+            category: "Other"
+        )
+    }
 
     var body: some View {
         NavigationView {
@@ -83,16 +116,40 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle("Settings")
+            // Reward app picker
             .sheet(isPresented: $showingAddRewardApp) {
-                AddEditAppConfigView(configType: .reward) { config in
-                    viewModel.addOrUpdateAppConfig(config)
+                AppPickerView(
+                    configType: .reward,
+                    alreadyConfiguredBundleIDs: Set(viewModel.rewardApps.map(\.bundleIdentifier))
+                ) { pickedApp in
+                    pendingPickedConfig = pickedConfig(from: pickedApp, configType: .reward)
+                } onManual: {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + sheetDismissalDelay) {
+                        pendingPickedConfig = blankConfig(for: .reward)
+                    }
                 }
             }
+            // Penalty app picker
             .sheet(isPresented: $showingAddPenaltyApp) {
-                AddEditAppConfigView(configType: .penalty) { config in
-                    viewModel.addOrUpdateAppConfig(config)
+                AppPickerView(
+                    configType: .penalty,
+                    alreadyConfiguredBundleIDs: Set(viewModel.penaltyApps.map(\.bundleIdentifier))
+                ) { pickedApp in
+                    pendingPickedConfig = pickedConfig(from: pickedApp, configType: .penalty)
+                } onManual: {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + sheetDismissalDelay) {
+                        pendingPickedConfig = blankConfig(for: .penalty)
+                    }
                 }
             }
+            // Rate-setting sheet (after picking from list, or manual entry)
+            .sheet(item: $pendingPickedConfig) { prefilled in
+                AddEditAppConfigView(existingConfig: prefilled, isNewFromPicker: !prefilled.bundleIdentifier.isEmpty && !prefilled.appName.isEmpty) { savedConfig in
+                    viewModel.addOrUpdateAppConfig(savedConfig)
+                    pendingPickedConfig = nil
+                }
+            }
+            // Edit existing app
             .sheet(item: $showingEditApp) { config in
                 AddEditAppConfigView(existingConfig: config) { updatedConfig in
                     viewModel.addOrUpdateAppConfig(updatedConfig)
@@ -142,6 +199,9 @@ struct AddEditAppConfigView: View {
 
     var existingConfig: AppConfig?
     var configType: AppConfigType
+    /// When true the app details (name, bundle ID, icon) were pre-filled from AppPickerView
+    /// and should be shown read-only instead of editable.
+    var isNewFromPicker: Bool
     let onSave: (AppConfig) -> Void
 
     @State private var appName: String = ""
@@ -154,9 +214,10 @@ struct AddEditAppConfigView: View {
     let icons = ["app.fill", "heart.fill", "figure.walk", "book.fill", "brain.head.profile",
                  "camera.fill", "play.rectangle.fill", "music.note", "gamecontroller.fill", "safari.fill"]
 
-    init(configType: AppConfigType = .reward, existingConfig: AppConfig? = nil, onSave: @escaping (AppConfig) -> Void) {
+    init(configType: AppConfigType = .reward, existingConfig: AppConfig? = nil, isNewFromPicker: Bool = false, onSave: @escaping (AppConfig) -> Void) {
         self.existingConfig = existingConfig
         self.configType = existingConfig?.configType ?? configType
+        self.isNewFromPicker = isNewFromPicker
         self.onSave = onSave
 
         if let config = existingConfig {
@@ -169,28 +230,50 @@ struct AddEditAppConfigView: View {
         }
     }
 
+    private var isEditingExistingApp: Bool {
+        existingConfig?.appName.isEmpty == false && !isNewFromPicker
+    }
+
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("App Details")) {
-                    TextField("App Name", text: $appName)
-                    TextField("Bundle ID (e.g. com.apple.Health)", text: $bundleID)
-                    TextField("Category", text: $category)
-                }
-
-                Section(header: Text("Icon")) {
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 5), spacing: 12) {
-                        ForEach(icons, id: \.self) { icon in
-                            Image(systemName: icon)
-                                .font(.title2)
-                                .foregroundColor(selectedIcon == icon ? .white : .primary)
-                                .frame(width: 44, height: 44)
-                                .background(selectedIcon == icon ? Color.blue : Color(.systemGray6))
-                                .cornerRadius(10)
-                                .onTapGesture { selectedIcon = icon }
+                // App Details — editable for manual entry, read-only when pre-filled from picker
+                if isNewFromPicker {
+                    Section(header: Text("App Details")) {
+                        HStack {
+                            Image(systemName: selectedIcon)
+                                .foregroundColor(configType == .reward ? .green : .red)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(appName)
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+                                Text(bundleID)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
                         }
                     }
-                    .padding(.vertical, 4)
+                } else {
+                    Section(header: Text("App Details")) {
+                        TextField("App Name", text: $appName)
+                        TextField("Bundle ID (e.g. com.apple.Health)", text: $bundleID)
+                        TextField("Category", text: $category)
+                    }
+
+                    Section(header: Text("Icon")) {
+                        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 5), spacing: 12) {
+                            ForEach(icons, id: \.self) { icon in
+                                Image(systemName: icon)
+                                    .font(.title2)
+                                    .foregroundColor(selectedIcon == icon ? .white : .primary)
+                                    .frame(width: 44, height: 44)
+                                    .background(selectedIcon == icon ? Color.blue : Color(.systemGray6))
+                                    .cornerRadius(10)
+                                    .onTapGesture { selectedIcon = icon }
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    }
                 }
 
                 Section(header: Text("Time Effect (minutes per minute used)")) {
@@ -210,7 +293,7 @@ struct AddEditAppConfigView: View {
                     Toggle("Enabled", isOn: $isEnabled)
                 }
             }
-            .navigationTitle(existingConfig != nil ? "Edit App" : "Add App")
+            .navigationTitle(isEditingExistingApp ? "Edit App" : "Add App")
             .navigationBarItems(
                 leading: Button("Cancel") { dismiss() },
                 trailing: Button("Save") {

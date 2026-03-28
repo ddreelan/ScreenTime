@@ -37,5 +37,39 @@
     <string>ScreenTime uses motion data to verify physical activities like walking and exercise so you can earn extra screen time.</string>
     <key>NSLocationWhenInUseUsageDescription</key>
     <string>ScreenTime uses your location to verify outdoor activities and earn you extra screen time.</string>
+    <key>LSApplicationQueriesSchemes</key>
+    <array>
+        <string>tiktok</string>
+        <string>instagram</string>
+        <string>youtube</string>
+        <string>twitter</string>
+        <string>fb</string>
+        <string>snapchat</string>
+        <string>whatsapp</string>
+        <string>reddit</string>
+        <string>discord</string>
+        <string>pinterest</string>
+        <string>linkedin</string>
+        <string>netflix</string>
+        <string>spotify</string>
+        <string>twitch</string>
+        <string>podcast</string>
+        <string>x-apple-health</string>
+        <string>x-apple-fitness</string>
+        <string>headspace</string>
+        <string>calm</string>
+        <string>noom</string>
+        <string>duolingo</string>
+        <string>khanacademy</string>
+        <string>quizlet</string>
+        <string>maps</string>
+        <string>ms-word</string>
+        <string>ms-excel</string>
+        <string>googledocs</string>
+        <string>clashofclans</string>
+        <string>roblox</string>
+        <string>minecraft</string>
+        <string>fortnite</string>
+    </array>
 </dict>
 </plist>
