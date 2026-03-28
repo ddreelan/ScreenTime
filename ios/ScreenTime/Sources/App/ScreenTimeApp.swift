@@ -7,6 +7,10 @@ struct ScreenTimeApp: App {
     @StateObject private var screenTimeService = ScreenTimeService.shared
     @StateObject private var notificationService = NotificationService.shared
 
+    /// When true, the next startApp URL is ignored because we triggered
+    /// the app open ourselves to return the user after tracking started.
+    @State private var ignoringNextStart = false
+
     var body: some Scene {
         WindowGroup {
             ContentView()
@@ -29,13 +33,19 @@ struct ScreenTimeApp: App {
 
         switch url.host?.lowercased() {
         case "startapp":
+            // Skip if we opened the app ourselves to return the user
+            if ignoringNextStart {
+                ignoringNextStart = false
+                return
+            }
             if let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
                let bundleID = components.queryItems?.first(where: { $0.name == "bundleID" })?.value {
+                // Only start if not already tracking this exact app
+                guard screenTimeService.activeAppBundleID != bundleID else { return }
                 screenTimeService.setActiveApp(bundleID: bundleID)
                 if !screenTimeService.isTracking {
                     screenTimeService.startTracking()
                 }
-                // Return to the tracked app after a brief delay
                 returnToApp(bundleID: bundleID)
             }
         case "stopapp":
@@ -46,7 +56,6 @@ struct ScreenTimeApp: App {
     }
 
     private func returnToApp(bundleID: String) {
-        // Known URL schemes for popular apps
         let knownSchemes: [String: String] = [
             "com.google.ios.youtube": "youtube://",
             "com.instagram.mainapp": "instagram://",
@@ -67,11 +76,25 @@ struct ScreenTimeApp: App {
 
         let scheme = knownSchemes[bundleID] ?? "\(bundleID)://"
 
+        // Set the flag BEFORE opening the app so it's ready when the
+        // automation fires again
+        ignoringNextStart = true
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             if let url = URL(string: scheme),
                UIApplication.shared.canOpenURL(url) {
                 UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            } else {
+                // If we couldn't open the app, clear the flag so future
+                // legitimate opens aren't accidentally ignored
+                ignoringNextStart = false
             }
+        }
+
+        // Safety reset — if the automation never fires again (e.g. app
+        // didn't reopen), clear the flag after 3 seconds
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+            ignoringNextStart = false
         }
     }
 }
