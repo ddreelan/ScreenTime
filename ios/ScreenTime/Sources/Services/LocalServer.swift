@@ -11,6 +11,10 @@ class LocalServer {
     private var listener: NWListener?
     private let queue = DispatchQueue(label: "LocalServer", qos: .background)
 
+    /// Per-app trigger status used for loop prevention.
+    /// Key = bundleID, Value = "ready" or "triggered".
+    private var appTriggerStatus: [String: String] = [:]
+
     private init() {}
 
     func start() {
@@ -65,23 +69,60 @@ class LocalServer {
         let endpoint = urlComponents.path
         let bundleID = urlComponents.queryItems?.first(where: { $0.name == "bundleID" })?.value
 
-        DispatchQueue.main.async {
-            switch endpoint {
-            case "/startApp":
-                if let bundleID = bundleID {
+        switch endpoint {
+        case "/status":
+            if let bundleID = bundleID {
+                let status = appTriggerStatus[bundleID] ?? "ready"
+                respond(connection: connection, status: "200 OK", body: status)
+            } else {
+                respond(connection: connection, status: "400 Bad Request", body: "Missing bundleID")
+            }
+
+        case "/startApp":
+            if let bundleID = bundleID {
+                // Loop prevention: if already triggered, return early
+                if appTriggerStatus[bundleID] == "triggered" {
+                    respond(connection: connection, status: "200 OK", body: "already_triggered")
+                    return
+                }
+
+                // Mark as triggered
+                appTriggerStatus[bundleID] = "triggered"
+
+                DispatchQueue.main.async {
                     ScreenTimeService.shared.setActiveApp(bundleID: bundleID)
                     if !ScreenTimeService.shared.isTracking {
                         ScreenTimeService.shared.startTracking()
                     }
+                    URLHandler.shared.returnToApp(bundleID: bundleID)
                 }
-            case "/stopApp":
-                ScreenTimeService.shared.setActiveApp(bundleID: nil)
-            default:
-                break
-            }
-        }
 
-        respond(connection: connection, status: "200 OK", body: "OK")
+                // Reset status after 3 seconds on the server queue
+                queue.asyncAfter(deadline: .now() + 3) { [weak self] in
+                    self?.appTriggerStatus[bundleID] = "ready"
+                }
+
+                respond(connection: connection, status: "200 OK", body: "OK")
+            } else {
+                // Backwards compatibility: no bundleID
+                DispatchQueue.main.async {
+                    ScreenTimeService.shared.startTracking()
+                }
+                respond(connection: connection, status: "200 OK", body: "OK")
+            }
+
+        case "/stopApp":
+            if let bundleID = bundleID {
+                appTriggerStatus[bundleID] = "ready"
+            }
+            DispatchQueue.main.async {
+                ScreenTimeService.shared.setActiveApp(bundleID: nil)
+            }
+            respond(connection: connection, status: "200 OK", body: "OK")
+
+        default:
+            respond(connection: connection, status: "404 Not Found", body: "Not found")
+        }
     }
 
     private func respond(connection: NWConnection, status: String, body: String) {

@@ -9,7 +9,6 @@ struct ScreenTimeApp: App {
     @StateObject private var authService = AuthService.shared
 
     @State private var showSplash = true
-    private let urlHandler = URLHandler()
 
     var body: some Scene {
         WindowGroup {
@@ -38,7 +37,7 @@ struct ScreenTimeApp: App {
                             LocalServer.shared.start()
                         }
                         .onOpenURL { url in
-                            urlHandler.handle(url, screenTimeService: screenTimeService)
+                            URLHandler.shared.handle(url, screenTimeService: screenTimeService)
                         }
                 }
             }
@@ -48,9 +47,8 @@ struct ScreenTimeApp: App {
 
 @MainActor
 class URLHandler {
-    private var ignoringNextStart = false
-    private var lastReturnedBundleID: String? = nil
-    private var lastReturnTime: Date? = nil
+    static let shared = URLHandler()
+    private init() {}
 
     func handle(_ url: URL, screenTimeService: ScreenTimeService) {
         guard url.scheme == "screentime" else { return }
@@ -59,16 +57,6 @@ class URLHandler {
         case "startapp":
             if let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
                let bundleID = components.queryItems?.first(where: { $0.name == "bundleID" })?.value {
-
-                // If we just returned to this app within the last 2 seconds, ignore — it's the loop
-                if let lastID = lastReturnedBundleID,
-                   let lastTime = lastReturnTime,
-                   lastID == bundleID,
-                   Date().timeIntervalSince(lastTime) < 2.0 {
-                    return
-                }
-
-                guard screenTimeService.activeAppBundleID != bundleID else { return }
                 screenTimeService.setActiveApp(bundleID: bundleID)
                 if !screenTimeService.isTracking {
                     screenTimeService.startTracking()
@@ -77,14 +65,12 @@ class URLHandler {
             }
         case "stopapp":
             screenTimeService.setActiveApp(bundleID: nil)
-            lastReturnedBundleID = nil
-            lastReturnTime = nil
         default:
             break
         }
     }
 
-    private func returnToApp(bundleID: String) {
+    func returnToApp(bundleID: String) {
         let knownSchemes: [String: String] = [
             "com.google.ios.youtube": "youtube://",
             "com.instagram.mainapp": "instagram://",
@@ -106,23 +92,10 @@ class URLHandler {
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             guard let url = URL(string: scheme) else { return }
-
-            // Record that we are returning to this app right now
-            self.lastReturnedBundleID = bundleID
-            self.lastReturnTime = Date()
-
             if UIApplication.shared.canOpenURL(url) {
                 UIApplication.shared.open(url, options: [:], completionHandler: nil)
             } else {
-                // canOpenURL failed — likely the scheme isn't in LSApplicationQueriesSchemes
-                // Try opening without the check as a fallback
-                UIApplication.shared.open(url, options: [:]) { success in
-                    if !success {
-                        // Nothing worked — clear the record so the next open isn't blocked
-                        self.lastReturnedBundleID = nil
-                        self.lastReturnTime = nil
-                    }
-                }
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
             }
         }
     }

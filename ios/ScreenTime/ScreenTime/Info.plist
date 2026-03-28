@@ -62,6 +62,7 @@
         <string>pinterest</string>
         <string>linkedin</string>
         <string>netflix</string>
+        <string>nflx</string>
         <string>spotify</string>
         <string>twitch</string>
         <string>podcast</string>
@@ -81,6 +82,7 @@
         <string>roblox</string>
         <string>minecraft</string>
         <string>fortnite</string>
+        <string>snssdk1128</string>
     </array>
 </dict>
 </plist>
