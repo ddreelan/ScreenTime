@@ -444,7 +444,7 @@ struct AchievementRow: View {
     let achievement: Achievement
 
     private var rewardLabel: String {
-        let seconds = Int(achievement.timeRewardSeconds)
+        let seconds = Int(achievement.timeRewardSeconds.rounded())
         if seconds >= 3600 {
             let hours = seconds / 3600
             let mins = (seconds % 3600) / 60
