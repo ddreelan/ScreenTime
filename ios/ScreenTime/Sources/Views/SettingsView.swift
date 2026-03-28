@@ -200,12 +200,16 @@ struct ShortcutSetupView: View {
     @Environment(\.dismiss) private var dismiss
     let config: AppConfig
 
+    private var statusURLString: String {
+        "http://localhost:48291/status?bundleID=\(config.bundleIdentifier)"
+    }
+
     private var startURLString: String {
         "http://localhost:48291/startApp?bundleID=\(config.bundleIdentifier)"
     }
 
     private var stopURLString: String {
-        "http://localhost:48291/stopApp"
+        "http://localhost:48291/stopApp?bundleID=\(config.bundleIdentifier)"
     }
 
     var body: some View {
@@ -236,7 +240,7 @@ struct ShortcutSetupView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("What this does")
                             .font(.headline)
-                        Text("You will create two Shortcuts automations — one that runs when \(config.appName) opens, and one when it closes. They notify ScreenTime in the background without switching apps.")
+                        Text("You will create two Shortcuts automations. When \(config.appName) opens, the shortcut checks a status flag first — if it has not already been triggered, it notifies ScreenTime to start tracking. When \(config.appName) closes, it notifies ScreenTime to stop. ScreenTime appears briefly then returns you to \(config.appName) automatically.")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                     }
@@ -266,15 +270,18 @@ struct ShortcutSetupView: View {
                             EmptyView()
                         }
 
-                        StepView(number: 3, title: "Add a Get Contents of URL action", description: "Tap 'Create New Shortcut' → search for 'Get Contents of URL' → paste the Start URL below as the URL. No other settings needed.") {
-                            URLCopyRow(label: "Start URL", urlString: startURLString)
+                        StepView(number: 3, title: "Add a status check then the Start URL", description: "Tap 'Create New Shortcut' -> add 'Get Contents of URL' -> paste the Status URL -> add an 'If' block -> set condition to: input Contains 'ready' -> inside the If block, add another 'Get Contents of URL' -> paste the Start URL. No other actions needed.") {
+                            VStack(spacing: 8) {
+                                URLCopyRow(label: "Status URL", urlString: statusURLString)
+                                URLCopyRow(label: "Start URL", urlString: startURLString)
+                            }
                         }
 
                         StepView(number: 4, title: "Set to Run Immediately", description: "Tap the info icon → change 'Run After Confirmation' to 'Run Immediately' → tap Done.") {
                             EmptyView()
                         }
 
-                        StepView(number: 5, title: "Repeat for Close", description: "Create a second automation: App → \(config.appName) → tick 'Is Closed' only → 'Get Contents of URL' → paste the Stop URL below. Set to 'Run Immediately'.") {
+                        StepView(number: 5, title: "Repeat for Close", description: "Create a second automation: App -> \(config.appName) -> tick 'Is Closed' only -> add 'Get Contents of URL' -> paste the Stop URL. Set to 'Run Immediately'. No status check needed for close.") {
                             URLCopyRow(label: "Stop URL", urlString: stopURLString)
                         }
                     }
