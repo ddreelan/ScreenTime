@@ -4,6 +4,16 @@ This guide walks developers and testers through every step needed to build, run,
 
 ---
 
+## ⚡ One-Command Quick Start
+
+```bash
+git clone https://github.com/ddreelan/ScreenTime.git
+open ScreenTime/ios/ScreenTime/ScreenTime.xcodeproj
+# Then: select your iPhone in the toolbar → ⌘R
+```
+
+---
+
 ## Table of Contents
 
 1. [Local Development Setup](#1-local-development-setup)
@@ -20,13 +30,13 @@ This guide walks developers and testers through every step needed to build, run,
 
 ### 1.1 System Requirements
 
-| Requirement | Minimum | Recommended |
-|-------------|---------|-------------|
-| macOS | 13 Ventura | 14 Sonoma or later |
-| Xcode | 15.0 | Latest stable release |
-| iOS SDK | 16.0 | Latest |
-| Swift | 5.9 | Bundled with Xcode |
-| iPhone / iOS | iOS 16.0 | iOS 17 or later |
+| Requirement | Value |
+|-------------|-------|
+| macOS | 15 Sequoia |
+| Xcode | 26.3 (Build 17C529) |
+| Swift | 6.2.4 |
+| iOS SDK | 16.0+ |
+| iPhone / iOS | iOS 16.0+ |
 
 ### 1.2 Install Xcode
 
@@ -36,8 +46,8 @@ This guide walks developers and testers through every step needed to build, run,
 4. Verify the installation:
    ```bash
    xcode-select -p        # Should print /Applications/Xcode.app/Contents/Developer
-   swift --version        # Should print Swift 5.9 or later
-   xcodebuild -version    # Should print Xcode 15.x
+   swift --version        # Should print Apple Swift version 6.2.4
+   xcodebuild -version    # Should print Xcode 26.3
    ```
 5. Install additional iOS simulators if required:
    - **Xcode → Settings → Platforms → iOS** → click **+** to download a simulator runtime.
@@ -46,24 +56,23 @@ This guide walks developers and testers through every step needed to build, run,
 
 ```bash
 git clone https://github.com/ddreelan/ScreenTime.git
-cd ScreenTime/ios/ScreenTime
 ```
 
-The iOS app uses **Swift Package Manager (SPM)** — there is no `Podfile` or `Cartfile`.
-
-Open the package in Xcode:
+The repository includes a pre-built **`ScreenTime.xcodeproj`** — simply open it:
 
 ```bash
-open Package.swift
+open ScreenTime/ios/ScreenTime/ScreenTime.xcodeproj
 ```
 
-> **Tip:** You can also drag the `ios/ScreenTime` folder onto the Xcode Dock icon.
+> **Tip:** You can also double-click `ScreenTime.xcodeproj` in Finder.
 
-Xcode will automatically resolve all package dependencies (none are external at this time). Wait for the **"Resolving packages…"** status bar message to disappear before building.
+Xcode will open the project with all Swift source files already configured. No additional package resolution is required (there are no external dependencies).
+
+The iOS app also uses **Swift Package Manager (SPM)** for its internal target structure — the `Package.swift` manifest is included alongside the `.xcodeproj` for reference and command-line builds.
 
 ### 1.4 Configure the Deployment Target
 
-The minimum deployment target is already set to **iOS 16** in `Package.swift`:
+The minimum deployment target is already set to **iOS 16** in both `Package.swift` and the `.xcodeproj`:
 
 ```swift
 platforms: [
@@ -71,11 +80,11 @@ platforms: [
 ]
 ```
 
-No changes are required. If you want to test on an older device, lower the version here and in any build settings.
+No changes are required. If you want to test on an older device, update the version in `Package.swift` and in the project's **Build Settings → iOS Deployment Target**.
 
 ### 1.5 Dependency Management
 
-The project uses Swift Package Manager exclusively. To add a new dependency:
+The project uses Swift Package Manager exclusively and has no external dependencies. To add a new dependency in the future:
 
 1. In Xcode: **File → Add Package Dependencies…**
 2. Enter the package URL and select a version rule.
@@ -100,27 +109,15 @@ A **free** Apple ID lets you sideload the app for up to 7 days before the certif
 1. Go to [developer.apple.com](https://developer.apple.com) and sign in (or enrol) with your Apple ID.
 2. In Xcode: **Settings → Accounts → +** → **Apple ID** → sign in with the same account.
 
-### 2.2 Create an Xcode Project for the App
+### 2.2 Open the Xcode Project
 
-The repository ships a Swift Package, but running on a device requires a **host Xcode project** (`.xcodeproj` or `.xcworkspace`). Follow these steps to create one:
+The repository ships with a ready-to-use **`ScreenTime.xcodeproj`** — you no longer need to create a host project manually.
 
-1. In Xcode, choose **File → New → Project…**
-2. Select **iOS → App**, click **Next**.
-3. Fill in:
-   - **Product Name:** `ScreenTime`
-   - **Team:** select your Apple ID / developer account
-   - **Organization Identifier:** `com.yourname` (or your org's reverse-domain)
-   - **Bundle Identifier:** e.g. `com.yourname.ScreenTime`
-   - **Interface:** SwiftUI
-   - **Language:** Swift
-4. Save inside `ios/ScreenTime` (or a sibling folder) and click **Create**.
-5. Add the local Swift Package to the project:
-   - **File → Add Package Dependencies…** → click **Add Local…** → select `ios/ScreenTime`
-   - The `ScreenTime` library target now appears under the project navigator.
-6. In the project target's **General → Frameworks, Libraries, and Embedded Content**, add `ScreenTime.framework`.
-7. Replace the generated `ContentView.swift` with the existing `Sources/App/ContentView.swift`, or import it as needed.
+```bash
+open ios/ScreenTime/ScreenTime.xcodeproj
+```
 
-> **Note:** Once the project migrates to a full `.xcodeproj`, step 2 through 7 will already be done for you.
+Xcode opens the project with all source files configured and the `ScreenTime` scheme pre-set to build an iOS App target.
 
 ### 2.3 Code Signing
 
@@ -174,6 +171,7 @@ Apps signed with a paid developer account provisioning profile do not require th
 ```bash
 cd ios/ScreenTime
 xcodebuild \
+  -project ScreenTime.xcodeproj \
   -scheme ScreenTime \
   -destination 'platform=iOS,id=<DEVICE_UDID>' \
   -configuration Debug \
@@ -517,11 +515,13 @@ Launch Instruments: **Xcode → Open Developer Tool → Instruments**, or **⌘ 
 
 Use this checklist before handing the device to a tester:
 
-- [ ] Xcode 15+ installed and command-line tools accepted
+- [ ] Xcode 26.3+ installed and command-line tools accepted
 - [ ] Developer account added in **Xcode → Settings → Accounts**
+- [ ] `ios/ScreenTime/ScreenTime.xcodeproj` opened in Xcode
 - [ ] iPhone connected via USB and trusted
-- [ ] Bundle ID matches provisioning profile
-- [ ] `Info.plist` contains all three `NSUsageDescription` keys
+- [ ] Team selected in **Signing & Capabilities** (your Apple ID team)
+- [ ] Bundle ID `com.ddreelan.ScreenTime` (or customised to your org) matches provisioning profile
+- [ ] `Info.plist` present at `ios/ScreenTime/ScreenTime/Info.plist` with all three `NSUsageDescription` keys
 - [ ] App built and installed successfully (no code-signing errors)
 - [ ] Certificate trusted on device (**Settings → General → VPN & Device Management**)
 - [ ] Notification permission granted on first launch

@@ -59,7 +59,13 @@ ScreenTime/
 
 ## iOS App
 
-**Requirements:** iOS 16+, Xcode 15+, Swift 5.9
+**Requirements:** iOS 16+, Xcode 26+, Swift 6.2+
+
+**Quick Start:** A pre-built `ScreenTime.xcodeproj` is included — open it directly in Xcode and hit ⌘R to run on your iPhone. No need to create a host project manually.
+
+```bash
+open ios/ScreenTime/ScreenTime.xcodeproj
+```
 
 **Architecture:** MVVM with Combine
 

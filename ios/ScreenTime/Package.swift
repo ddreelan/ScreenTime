@@ -1,4 +1,4 @@
-// swift-tools-version: 5.9
+// swift-tools-version: 6.0
 import PackageDescription
 
 let package = Package(
@@ -7,19 +7,35 @@ let package = Package(
         .iOS(.v16)
     ],
     products: [
-        .library(name: "ScreenTime", targets: ["ScreenTime"])
+        .executable(name: "ScreenTime", targets: ["ScreenTimeApp"]),
+        .library(name: "ScreenTimeCore", targets: ["ScreenTimeCore"])
     ],
     dependencies: [],
     targets: [
+        .executableTarget(
+            name: "ScreenTimeApp",
+            dependencies: ["ScreenTimeCore"],
+            path: "Sources/App",
+            swiftSettings: [
+                .swiftLanguageMode(.v5)
+            ]
+        ),
         .target(
-            name: "ScreenTime",
+            name: "ScreenTimeCore",
             dependencies: [],
-            path: "Sources"
+            path: "Sources",
+            exclude: ["App"],
+            swiftSettings: [
+                .swiftLanguageMode(.v5)
+            ]
         ),
         .testTarget(
             name: "ScreenTimeTests",
-            dependencies: ["ScreenTime"],
-            path: "Tests"
+            dependencies: ["ScreenTimeCore"],
+            path: "Tests",
+            swiftSettings: [
+                .swiftLanguageMode(.v5)
+            ]
         )
     ]
 )
