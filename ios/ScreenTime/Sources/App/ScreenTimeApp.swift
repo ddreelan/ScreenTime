@@ -29,8 +29,9 @@ struct ScreenTimeApp: App {
     private func handleIncomingURL(_ url: URL) {
         guard url.scheme == "screentime" else { return }
 
-        switch url.host {
-        case "startApp":
+        // url.host is lowercased by iOS, so compare lowercase
+        switch url.host?.lowercased() {
+        case "startapp":
             if let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
                let bundleID = components.queryItems?.first(where: { $0.name == "bundleID" })?.value {
                 screenTimeService.setActiveApp(bundleID: bundleID)
@@ -38,7 +39,7 @@ struct ScreenTimeApp: App {
                     screenTimeService.startTracking()
                 }
             }
-        case "stopApp":
+        case "stopapp":
             screenTimeService.setActiveApp(bundleID: nil)
         default:
             break
