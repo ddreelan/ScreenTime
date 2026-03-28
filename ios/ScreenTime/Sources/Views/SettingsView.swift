@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @EnvironmentObject var authService: AuthService
     @StateObject private var viewModel = SettingsViewModel()
     @State private var showingAddRewardApp = false
     @State private var showingAddPenaltyApp = false
@@ -136,6 +137,25 @@ struct SettingsView: View {
                 Section(header: Text("Notifications")) {
                     NavigationLink("Break Reminders") {
                         BreakReminderSettingsView()
+                    }
+                }
+
+                // Account Section
+                Section(header: Text("Account")) {
+                    if let email = authService.currentUserEmail {
+                        HStack {
+                            Text("Signed in as")
+                            Spacer()
+                            Text(email)
+                                .foregroundColor(.secondary)
+                                .lineLimit(1)
+                                .truncationMode(.middle)
+                        }
+                    }
+                    Button(role: .destructive) {
+                        authService.signOut()
+                    } label: {
+                        Label("Sign Out", systemImage: "rectangle.portrait.and.arrow.right")
                     }
                 }
 

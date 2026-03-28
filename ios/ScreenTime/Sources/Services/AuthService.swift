@@ -8,6 +8,7 @@ class AuthService: ObservableObject {
 
     @Published var isAuthenticated: Bool = false
     @Published var currentUserEmail: String?
+    @Published var emailVerified: Bool = false
 
     private let userDefaultsSuite = UserDefaults.standard
     private let keychainService = "com.screentime.auth"
@@ -37,6 +38,7 @@ class AuthService: ObservableObject {
         saveSessionToken(for: trimmedEmail)
         isAuthenticated = true
         currentUserEmail = trimmedEmail
+        emailVerified = userDefaultsSuite.bool(forKey: emailVerifiedKey(for: trimmedEmail))
     }
 
     func register(email: String, password: String, name: String) async throws {
@@ -59,18 +61,31 @@ class AuthService: ObservableObject {
         saveSessionToken(for: trimmedEmail)
         isAuthenticated = true
         currentUserEmail = trimmedEmail
+        emailVerified = false
+        userDefaultsSuite.set(false, forKey: emailVerifiedKey(for: trimmedEmail))
+    }
+
+    func oauthSignIn(token: String, userId: String, email: String, emailVerified: Bool = true) {
+        let trimmedEmail = email.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        saveSessionToken(for: trimmedEmail)
+        isAuthenticated = true
+        currentUserEmail = trimmedEmail
+        self.emailVerified = emailVerified
+        userDefaultsSuite.set(emailVerified, forKey: emailVerifiedKey(for: trimmedEmail))
     }
 
     func signOut() {
         deleteSessionToken()
         isAuthenticated = false
         currentUserEmail = nil
+        emailVerified = false
     }
 
     func checkExistingSession() {
         if let email = loadSessionToken() {
             isAuthenticated = true
             currentUserEmail = email
+            emailVerified = userDefaultsSuite.bool(forKey: emailVerifiedKey(for: email))
         }
     }
 
@@ -134,6 +149,7 @@ class AuthService: ObservableObject {
     private func passwordKey(for email: String) -> String { "auth.hash.\(email)" }
     private func saltKey(for email: String) -> String { "auth.salt.\(email)" }
     private func nameKey(for email: String) -> String { "auth.name.\(email)" }
+    private func emailVerifiedKey(for email: String) -> String { "auth.emailVerified.\(email)" }
 }
 
 // MARK: - Auth Errors
