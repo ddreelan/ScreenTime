@@ -9,9 +9,19 @@ ScreenTime empowers users to take control of their device usage through:
 - **Daily Screen Time Budget** — configurable per-day allocation
 - **Reward System** — use productivity/health apps to earn extra minutes
 - **Penalty System** — time-wasting apps cost extra screen time
+- **Default Penalty for Unconfigured Apps** — configurable rate (default −1.0 min/min) for apps not in reward/penalty lists
+- **Self-App Exemption** — ScreenTime itself is treated as neutral (zero penalty/reward)
 - **Activity Verification** — sensor-based verification (accelerometer, tap count, scroll detection, GPS)
-- **Analytics Dashboard** — daily and weekly usage insights
-- **Achievements & Gamification** — streaks, badges, and milestones
+- **Enhanced Analytics** — per-app reward/penalty breakdown, daily usage timeline line graph with color-coded segments and interactive touch/drag tooltips
+- **Timeline Data Model** — `TimelineDataPoint` snapshots every 30 s during active tracking
+- **24 Achievements** — both platforms share 24 achievements with bonus screen time rewards (`timeRewardSeconds`)
+- **Email/Password Authentication** — SHA-256 + salt hashing, iOS Keychain / Android SharedPreferences, auth gates the app
+- **OAuth Sign-in (Stubs)** — Google, Apple (iOS), Facebook OAuth redirect flow stubs with TODO markers for real client IDs
+- **Loading Splash Screen** — animated ring progress, app name, dark gradient background, auto-advances after ~2.2 s
+- **Quick Start Buttons** — dashboard buttons open timer sheets, track elapsed time, and save verified activities with earned rewards
+- **Native App Tracking (Android)** — `UsageStatsManager` polling via `AppUsageTrackingWorker`
+- **Official App Logos** — SF Symbols (iOS) and Material Icons (Android); Android loads real app icons via `PackageManager`
+- **Decimal Input for Time Effect** — TextField alongside Slider for precise 0.1–5.0 input in app config settings
 - **Notifications** — break reminders and usage alerts
 
 ---
@@ -28,10 +38,10 @@ ScreenTime/
 │       ├── Package.swift
 │       ├── Sources/
 │       │   ├── App/         # Entry point, ContentView
-│       │   ├── Models/      # Data models
-│       │   ├── Services/    # DataStore, ScreenTimeService, etc.
+│       │   ├── Models/      # Data models (incl. TimelineDataPoint.swift)
+│       │   ├── Services/    # DataStore, ScreenTimeService, AuthService.swift, etc.
 │       │   ├── ViewModels/  # MVVM view models
-│       │   └── Views/       # SwiftUI views
+│       │   └── Views/       # SwiftUI views (SignInView, SplashView, …)
 │       └── Tests/
 │
 ├── android/                 # Android app (Kotlin/Jetpack Compose, API 26+)
@@ -42,17 +52,17 @@ ScreenTime/
 │           ├── main/java/com/screentime/app/
 │           │   ├── data/    # Models, Room DB, DAOs, Repository
 │           │   ├── viewmodel/
-│           │   ├── ui/      # Compose screens and theme
-│           │   ├── service/ # Background tracking service
+│           │   ├── ui/      # Compose screens (SignInScreen, SplashScreen, …)
+│           │   ├── service/ # Background tracking, AppUsageTrackingWorker, AchievementChecker
 │           │   └── notification/
 │           └── test/
 │
 └── backend/                 # Node.js/Express REST API
     ├── src/
-    │   ├── routes/          # Auth, users, app-configs, screen-time, activities, analytics
+    │   ├── routes/          # Auth (incl. OAuth), users, app-configs, screen-time, activities, analytics
     │   ├── middleware/       # JWT auth, error handler
     │   └── utils/           # SQLite database, logger
-    └── tests/
+    └── tests/               # screenTime.test.js, …
 ```
 
 ---
@@ -72,10 +82,12 @@ open ios/ScreenTime/ScreenTime.xcodeproj
 **Key screens:**
 | Screen | Description |
 |--------|-------------|
-| Dashboard | Animated time ring, stats, quick-start activities |
+| Splash | Animated ring progress with app name; auto-advances after ~2.2 s |
+| Sign In | Email/password login + OAuth stubs (Google, Apple, Facebook) |
+| Dashboard | Animated time ring, stats, quick-start activity buttons (open timer sheets) |
 | Activities | Start & verify real-world activities to earn time |
-| Analytics | Bar chart history, achievement gallery |
-| Settings | Configure reward/penalty apps with sliders |
+| Analytics | Per-app breakdown, daily timeline line graph with color-coded segments & tooltips, achievement gallery |
+| Settings | Configure reward/penalty apps with sliders + decimal TextField (0.1–5.0), default penalty rate |
 | Profile | User name, age, goals |
 
 **Services:**
@@ -83,6 +95,7 @@ open ios/ScreenTime/ScreenTime.xcodeproj
 - `ScreenTimeService` — Real-time countdown timer
 - `ActivityVerificationService` — CoreMotion + CoreLocation verification
 - `NotificationService` — UNUserNotificationCenter alerts
+- `AuthService` — SHA-256 + salt password hashing, Keychain storage
 
 ---
 
@@ -98,7 +111,12 @@ open ios/ScreenTime/ScreenTime.xcodeproj
 - Room database with full CRUD for all entities
 - Accelerometer-based physical activity verification
 - Foreground service for background screen time tracking
+- Native app tracking via `UsageStatsManager` (`AppUsageTrackingWorker`)
+- `AchievementChecker` evaluates 24 achievements with `timeRewardSeconds`
+- `AuthService` with SHA-256 + salt hashing; credentials in SharedPreferences
+- Splash screen and sign-in screen (email/password + OAuth stubs)
 - Material 3 dynamic color theming
+- Real app icons loaded via `PackageManager`
 
 ### Running Tests
 ```bash
@@ -141,9 +159,11 @@ npm run dev
 | Category | Endpoints |
 |----------|-----------|
 | Auth | `POST /auth/register`, `POST /auth/login` |
+| OAuth | `POST /auth/oauth/google`, `POST /auth/oauth/apple`, `POST /auth/oauth/facebook` |
 | Profile | `GET/PUT /users/me` |
 | App Configs | `GET/POST/PUT/DELETE /app-configs` |
 | Screen Time | `GET/PUT /screen-time/summary/today`, `GET /screen-time/summaries` |
+| Timeline | `POST /screen-time/timeline`, `GET /screen-time/timeline?date=YYYY-MM-DD` |
 | Activities | `GET/POST /activities`, `PUT /activities/:id` |
 | Analytics | `GET /analytics/overview?days=7` |
 | Achievements | `GET /achievements`, `PUT /achievements/:id` |
