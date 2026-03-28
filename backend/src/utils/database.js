@@ -68,6 +68,7 @@ async function initializeDatabase() {
       name TEXT NOT NULL,
       age INTEGER DEFAULT 0,
       daily_screen_time_limit INTEGER DEFAULT 7200,
+      default_penalty_rate REAL DEFAULT -1.0,
       goals TEXT DEFAULT '[]',
       created_at INTEGER NOT NULL,
       updated_at INTEGER NOT NULL

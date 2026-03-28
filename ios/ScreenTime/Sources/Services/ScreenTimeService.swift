@@ -72,15 +72,22 @@ class ScreenTimeService: ObservableObject {
         // Always add 1 second of base usage
         dataStore.todaySummary.totalUsed += 1
 
+        // Self-app exemption: skip all reward/penalty logic for ScreenTime itself
+        if activeAppBundleID == Bundle.main.bundleIdentifier {
+            dataStore.saveSummary()
+            updateRemainingTime()
+            return
+        }
+
         // Apply reward or penalty multiplier based on the active app config
         if let config = activeConfig {
             switch config.configType {
             case .reward:
-                let rewardPerSecond = config.minutesPerMinute * 60
+                let rewardPerSecond = config.minutesPerMinute / 60.0
                 dataStore.todaySummary.totalEarned += rewardPerSecond
                 activeAppSessionSeconds += rewardPerSecond
             case .penalty:
-                let penaltyPerSecond = abs(config.minutesPerMinute) * 60
+                let penaltyPerSecond = abs(config.minutesPerMinute) / 60.0
                 dataStore.todaySummary.totalPenalty += penaltyPerSecond
                 activeAppSessionSeconds += penaltyPerSecond
             case .neutral:
@@ -98,6 +105,10 @@ class ScreenTimeService: ObservableObject {
                     remainingSeconds: remainingTime
                 )
             }
+        } else if activeAppBundleID != nil {
+            // Default penalty for unconfigured apps
+            let penaltyPerSecond = abs(dataStore.defaultPenaltyRate) / 60.0
+            dataStore.todaySummary.totalPenalty += penaltyPerSecond
         }
 
         dataStore.saveSummary()

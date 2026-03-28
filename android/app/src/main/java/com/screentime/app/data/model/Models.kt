@@ -12,6 +12,7 @@ data class UserProfile(
     val name: String,
     val age: Int,
     val dailyScreenTimeLimitSeconds: Long = 7200L, // 2 hours default
+    val defaultPenaltyRate: Double = -1.0,
     val goals: String = "", // JSON-encoded list
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis()
@@ -121,7 +122,8 @@ data class Achievement(
     val isUnlocked: Boolean = false,
     val unlockedAt: Long? = null,
     val progressCurrent: Double = 0.0,
-    val progressTarget: Double = 1.0
+    val progressTarget: Double = 1.0,
+    val timeRewardSeconds: Long = 0L
 ) {
     val progress: Float get() = minOf(1f, (progressCurrent / progressTarget).toFloat())
 }
@@ -159,9 +161,29 @@ object DefaultData {
     )
 
     val achievements = listOf(
-        Achievement(title = "First Steps", description = "Complete your first activity", icon = "star", category = AchievementCategory.ACTIVITY, progressTarget = 1.0),
-        Achievement(title = "Week Warrior", description = "Stay within screen time limit for 7 days", icon = "calendar_today", category = AchievementCategory.STREAK, progressTarget = 7.0),
-        Achievement(title = "Activity Champion", description = "Complete 10 activities", icon = "emoji_events", category = AchievementCategory.ACTIVITY, progressTarget = 10.0),
-        Achievement(title = "Digital Detox", description = "Use less than 1 hour of screen time in a day", icon = "eco", category = AchievementCategory.SCREEN_TIME, progressTarget = 1.0)
+        Achievement(title = "First Steps", description = "Complete your first activity", icon = "star", category = AchievementCategory.ACTIVITY, progressTarget = 1.0, timeRewardSeconds = 60),
+        Achievement(title = "Week Warrior", description = "Stay within screen time limit for 7 days", icon = "calendar_today", category = AchievementCategory.STREAK, progressTarget = 7.0, timeRewardSeconds = 300),
+        Achievement(title = "Activity Champion", description = "Complete 10 activities", icon = "emoji_events", category = AchievementCategory.ACTIVITY, progressTarget = 10.0, timeRewardSeconds = 600),
+        Achievement(title = "Digital Detox", description = "Use less than 1 hour of screen time in a day", icon = "eco", category = AchievementCategory.SCREEN_TIME, progressTarget = 1.0, timeRewardSeconds = 300),
+        Achievement(title = "Early Bird", description = "Start an activity before 8 AM", icon = "wb_sunny", category = AchievementCategory.ACTIVITY, progressTarget = 1.0, timeRewardSeconds = 120),
+        Achievement(title = "Night Owl Redeemed", description = "Complete a meditation after 9 PM", icon = "nightlight", category = AchievementCategory.ACTIVITY, progressTarget = 1.0, timeRewardSeconds = 120),
+        Achievement(title = "Marathon Runner", description = "Complete 5 runs", icon = "directions_run", category = AchievementCategory.ACTIVITY, progressTarget = 5.0, timeRewardSeconds = 300),
+        Achievement(title = "Bookworm", description = "Complete 10 reading sessions", icon = "menu_book", category = AchievementCategory.ACTIVITY, progressTarget = 10.0, timeRewardSeconds = 300),
+        Achievement(title = "Zen Master", description = "Complete 10 meditation sessions", icon = "self_improvement", category = AchievementCategory.ACTIVITY, progressTarget = 10.0, timeRewardSeconds = 300),
+        Achievement(title = "Fitness Fanatic", description = "Complete 15 exercises", icon = "fitness_center", category = AchievementCategory.ACTIVITY, progressTarget = 15.0, timeRewardSeconds = 600),
+        Achievement(title = "Social Butterfly", description = "Zero penalty app usage for 3 days", icon = "people", category = AchievementCategory.SCREEN_TIME, progressTarget = 3.0, timeRewardSeconds = 300),
+        Achievement(title = "Time Banker", description = "Earn 1 hour of screen time total", icon = "savings", category = AchievementCategory.SCREEN_TIME, progressTarget = 1.0, timeRewardSeconds = 300),
+        Achievement(title = "Consistent", description = "Maintain a 5 day streak", icon = "event_repeat", category = AchievementCategory.STREAK, progressTarget = 5.0, timeRewardSeconds = 180),
+        Achievement(title = "Power User", description = "Complete 25 activities", icon = "bolt", category = AchievementCategory.ACTIVITY, progressTarget = 25.0, timeRewardSeconds = 900),
+        Achievement(title = "Half Marathon", description = "Use reward apps for 30 minutes total", icon = "timer", category = AchievementCategory.SCREEN_TIME, progressTarget = 1.0, timeRewardSeconds = 180),
+        Achievement(title = "Screen Free Saturday", description = "Use less than 30 minutes on a Saturday", icon = "weekend", category = AchievementCategory.SCREEN_TIME, progressTarget = 1.0, timeRewardSeconds = 600),
+        Achievement(title = "Mindful Morning", description = "Complete 3 morning activities", icon = "wb_twilight", category = AchievementCategory.ACTIVITY, progressTarget = 3.0, timeRewardSeconds = 180),
+        Achievement(title = "Explorer", description = "Try all activity types", icon = "explore", category = AchievementCategory.ACTIVITY, progressTarget = 8.0, timeRewardSeconds = 300),
+        Achievement(title = "Overachiever", description = "Earn 2 hours of screen time total", icon = "military_tech", category = AchievementCategory.SCREEN_TIME, progressTarget = 1.0, timeRewardSeconds = 600),
+        Achievement(title = "Iron Will", description = "Maintain a 10 day streak", icon = "shield", category = AchievementCategory.STREAK, progressTarget = 10.0, timeRewardSeconds = 900),
+        Achievement(title = "Centurion", description = "Complete 100 activities", icon = "workspace_premium", category = AchievementCategory.ACTIVITY, progressTarget = 100.0, timeRewardSeconds = 1800),
+        Achievement(title = "App Master", description = "Configure 5 or more apps", icon = "app_settings_alt", category = AchievementCategory.SCREEN_TIME, progressTarget = 5.0, timeRewardSeconds = 120),
+        Achievement(title = "Balance Pro", description = "Equal earn and penalty in a day", icon = "balance", category = AchievementCategory.SCREEN_TIME, progressTarget = 1.0, timeRewardSeconds = 180),
+        Achievement(title = "Legendary", description = "Maintain a 30 day streak", icon = "diamond", category = AchievementCategory.STREAK, progressTarget = 30.0, timeRewardSeconds = 3600)
     )
 }
