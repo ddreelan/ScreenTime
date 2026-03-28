@@ -9,7 +9,7 @@ class ScreenTimeService: ObservableObject {
     @Published var remainingTime: TimeInterval = 0
 
     /// Set this to the bundle ID of the app currently being used
-    /// (e.g. "com.instagram.instagram") to apply reward/penalty multipliers.
+    /// (e.g. "com.google.ios.youtube") to apply reward/penalty multipliers.
     /// Set to nil when no specific app is active.
     var activeAppBundleID: String? = nil
 
@@ -37,7 +37,7 @@ class ScreenTimeService: ObservableObject {
         trackingTimer = nil
     }
 
-    /// Call this when the user starts using a specific app.
+    /// Call this when the user declares they are starting to use a specific app.
     func setActiveApp(bundleID: String?) {
         activeAppBundleID = bundleID
     }
@@ -53,11 +53,20 @@ class ScreenTimeService: ObservableObject {
         // Always add 1 second of base usage
         dataStore.todaySummary.totalUsed += 1
 
-        // Apply penalty multiplier if the active app is a penalty app.
-        // e.g. minutesPerMinute = -1.5 means 1 second of use costs 1.5 extra seconds.
-        if let config = activeConfig, config.configType == .penalty {
-            let penaltyPerSecond = abs(config.minutesPerMinute) * 60
-            dataStore.todaySummary.totalPenalty += penaltyPerSecond
+        // Apply reward or penalty multiplier based on the active app config
+        if let config = activeConfig {
+            switch config.configType {
+            case .reward:
+                // e.g. minutesPerMinute = 1.5 means 1 second of use earns 1.5 extra seconds
+                let rewardPerSecond = config.minutesPerMinute * 60
+                dataStore.todaySummary.totalEarned += rewardPerSecond
+            case .penalty:
+                // e.g. minutesPerMinute = -1.5 means 1 second of use costs 1.5 extra seconds
+                let penaltyPerSecond = abs(config.minutesPerMinute) * 60
+                dataStore.todaySummary.totalPenalty += penaltyPerSecond
+            case .neutral:
+                break
+            }
         }
 
         dataStore.saveSummary()
