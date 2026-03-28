@@ -36,6 +36,14 @@ let package = Package(
             swiftSettings: [
                 .swiftLanguageMode(.v5)
             ]
+        ),
+        .target(
+            name: "ScreenTimeWidgetExtension",
+            dependencies: [],
+            path: "ScreenTimeWidget",
+            swiftSettings: [
+                .swiftLanguageMode(.v5)
+            ]
         )
     ]
 )
