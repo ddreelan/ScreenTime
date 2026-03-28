@@ -16,20 +16,18 @@ struct ScreenTimeApp: App {
                 .onAppear {
                     notificationService.requestPermission()
                     screenTimeService.startTracking()
+                    LocalServer.shared.start()
                 }
                 .onOpenURL { url in
+                    // Keep URL scheme as fallback for manual testing
                     handleIncomingURL(url)
                 }
         }
     }
 
-    /// Handles deep links of the form:
-    ///   screentime://startApp?bundleID=com.google.ios.youtube
-    ///   screentime://stopApp
     private func handleIncomingURL(_ url: URL) {
         guard url.scheme == "screentime" else { return }
 
-        // url.host is lowercased by iOS, so compare lowercase
         switch url.host?.lowercased() {
         case "startapp":
             if let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
