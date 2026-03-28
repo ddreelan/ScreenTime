@@ -166,11 +166,11 @@ struct ShortcutSetupView: View {
     let config: AppConfig
 
     private var startURLString: String {
-        "screentime://startApp?bundleID=\(config.bundleIdentifier)"
+        "http://localhost:48291/startApp?bundleID=\(config.bundleIdentifier)"
     }
 
     private var stopURLString: String {
-        "screentime://stopApp"
+        "http://localhost:48291/stopApp"
     }
 
     var body: some View {
@@ -201,7 +201,7 @@ struct ShortcutSetupView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("What this does")
                             .font(.headline)
-                        Text("You will create two Shortcuts automations — one that runs when \(config.appName) opens, and one when it closes. They automatically tell ScreenTime to start and stop tracking.")
+                        Text("You will create two Shortcuts automations — one that runs when \(config.appName) opens, and one when it closes. They notify ScreenTime in the background without switching apps.")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                     }
@@ -209,7 +209,6 @@ struct ShortcutSetupView: View {
 
                     Divider()
 
-                    // Step by step
                     VStack(alignment: .leading, spacing: 16) {
                         Text("Setup Steps")
                             .font(.headline)
@@ -232,7 +231,7 @@ struct ShortcutSetupView: View {
                             EmptyView()
                         }
 
-                        StepView(number: 3, title: "Add two actions", description: "Tap 'Create New Shortcut' → add an 'Open App' action → select your ScreenTime app → then add a second 'Open URLs' action → paste the Start URL below as the URL value.") {
+                        StepView(number: 3, title: "Add a Get Contents of URL action", description: "Tap 'Create New Shortcut' → search for 'Get Contents of URL' → paste the Start URL below as the URL. No other settings needed.") {
                             URLCopyRow(label: "Start URL", urlString: startURLString)
                         }
 
@@ -240,28 +239,26 @@ struct ShortcutSetupView: View {
                             EmptyView()
                         }
 
-                        StepView(number: 5, title: "Repeat for Close", description: "Create a second automation: App → \(config.appName) → tick 'Is Closed' only → add 'Open App' (ScreenTime) → then 'Open URLs' → paste the Stop URL below. Set to 'Run Immediately'.") {
+                        StepView(number: 5, title: "Repeat for Close", description: "Create a second automation: App → \(config.appName) → tick 'Is Closed' only → 'Get Contents of URL' → paste the Stop URL below. Set to 'Run Immediately'.") {
                             URLCopyRow(label: "Stop URL", urlString: stopURLString)
                         }
                     }
 
                     Divider()
 
-                    // Test section
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Test It")
                             .font(.headline)
                             .padding(.horizontal)
-                        Text("Tap the buttons below to verify the URLs work. Your ScreenTime app should open and start/stop tracking.")
+                        Text("Make sure ScreenTime is running in the background, then tap Test Start. Your time should begin counting without the app opening.")
                             .font(.caption)
                             .foregroundColor(.secondary)
                             .padding(.horizontal)
 
                         HStack(spacing: 12) {
                             Button {
-                                if let url = URL(string: startURLString) {
-                                    UIApplication.shared.open(url)
-                                }
+                                guard let url = URL(string: startURLString) else { return }
+                                URLSession.shared.dataTask(with: url) { _, _, _ in }.resume()
                             } label: {
                                 Label("Test Start", systemImage: "play.fill")
                                     .frame(maxWidth: .infinity)
@@ -270,9 +267,8 @@ struct ShortcutSetupView: View {
                             .tint(.green)
 
                             Button {
-                                if let url = URL(string: stopURLString) {
-                                    UIApplication.shared.open(url)
-                                }
+                                guard let url = URL(string: stopURLString) else { return }
+                                URLSession.shared.dataTask(with: url) { _, _, _ in }.resume()
                             } label: {
                                 Label("Test Stop", systemImage: "stop.fill")
                                     .frame(maxWidth: .infinity)
