@@ -134,7 +134,11 @@ struct ProfileView: View {
                     saveProfile()
                 } else {
                     name = dataStore.userProfile?.name ?? ""
-                    age = dataStore.userProfile?.age.flatMap { $0 > 0 ? "\($0)" : nil } ?? ""
+                    if let ageValue = dataStore.userProfile?.age, ageValue > 0 {
+                        age = "\(ageValue)"
+                    } else {
+                        age = ""
+                    }
                     selectedGoals = Set(dataStore.userProfile?.goals ?? [])
                 }
                 isEditing.toggle()
