@@ -201,7 +201,7 @@ struct ShortcutSetupView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("What this does")
                             .font(.headline)
-                        Text("You'll create two Shortcuts automations — one that runs when \(config.appName) opens, and one when it closes. They automatically tell ScreenTime to start and stop tracking.")
+                        Text("You will create two Shortcuts automations — one that runs when \(config.appName) opens, and one when it closes. They automatically tell ScreenTime to start and stop tracking.")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                     }
@@ -232,15 +232,15 @@ struct ShortcutSetupView: View {
                             EmptyView()
                         }
 
-                        StepView(number: 3, title: "Add the Open URL action", description: "Tap 'New Blank Automation' → search for 'Open URLs' → paste the Start URL below as the URL value.") {
+                        StepView(number: 3, title: "Add two actions", description: "Tap 'Create New Shortcut' → add an 'Open App' action → select your ScreenTime app → then add a second 'Open URLs' action → paste the Start URL below as the URL value.") {
                             URLCopyRow(label: "Start URL", urlString: startURLString)
                         }
 
-                        StepView(number: 4, title: "Turn off Ask Before Running", description: "Toggle off 'Ask Before Running' and tap Done.") {
+                        StepView(number: 4, title: "Set to Run Immediately", description: "Tap the info icon → change 'Run After Confirmation' to 'Run Immediately' → tap Done.") {
                             EmptyView()
                         }
 
-                        StepView(number: 5, title: "Repeat for Close", description: "Create a second automation: App → \(config.appName) → tick 'Is Closed' only → Open URLs → paste the Stop URL below.") {
+                        StepView(number: 5, title: "Repeat for Close", description: "Create a second automation: App → \(config.appName) → tick 'Is Closed' only → add 'Open App' (ScreenTime) → then 'Open URLs' → paste the Stop URL below. Set to 'Run Immediately'.") {
                             URLCopyRow(label: "Stop URL", urlString: stopURLString)
                         }
                     }
@@ -356,7 +356,6 @@ struct URLCopyRow: View {
 }
 
 // MARK: - App Config Row
-// Now includes an onShortcut callback rendered as a tappable chevron button
 
 struct AppConfigRow: View {
     let config: AppConfig
