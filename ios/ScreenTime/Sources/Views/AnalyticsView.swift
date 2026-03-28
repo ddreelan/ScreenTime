@@ -393,14 +393,44 @@ struct DailyTimelineChartView: View {
 
 struct AchievementsView: View {
     let achievements: [Achievement]
+    @State private var isExpanded = false
+
+    /// Returns the top 5 locked achievements nearest to completion, followed by unlocked ones.
+    private var topAchievements: [Achievement] {
+        let locked = achievements
+            .filter { !$0.isUnlocked }
+            .sorted { $0.progress > $1.progress }
+        return Array(locked.prefix(5))
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Achievements")
-                .font(.headline)
+            Button(action: { withAnimation { isExpanded.toggle() } }) {
+                HStack {
+                    Text("Achievements")
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    Spacer()
+                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                        .foregroundColor(.secondary)
+                }
+            }
 
-            ForEach(achievements) { achievement in
-                AchievementRow(achievement: achievement)
+            if isExpanded {
+                ForEach(achievements) { achievement in
+                    AchievementRow(achievement: achievement)
+                }
+            } else {
+                ForEach(topAchievements) { achievement in
+                    AchievementRow(achievement: achievement)
+                }
+                if achievements.contains(where: { $0.isUnlocked }) || achievements.filter({ !$0.isUnlocked }).count > 5 {
+                    Button(action: { withAnimation { isExpanded = true } }) {
+                        Text("Show All Achievements")
+                            .font(.caption)
+                            .foregroundColor(.blue)
+                    }
+                }
             }
         }
         .padding()
@@ -412,6 +442,17 @@ struct AchievementsView: View {
 
 struct AchievementRow: View {
     let achievement: Achievement
+
+    private var rewardLabel: String {
+        let seconds = Int(achievement.timeRewardSeconds)
+        if seconds >= 3600 {
+            let hours = seconds / 3600
+            let mins = (seconds % 3600) / 60
+            return mins > 0 ? "+\(hours)h \(mins)m" : "+\(hours)h"
+        } else {
+            return "+\(seconds / 60)m"
+        }
+    }
 
     var body: some View {
         HStack(spacing: 12) {
@@ -432,13 +473,20 @@ struct AchievementRow: View {
 
             Spacer()
 
-            if !achievement.isUnlocked && achievement.progressTarget > 1 {
-                ProgressView(value: achievement.progress)
-                    .frame(width: 60)
-                    .tint(.blue)
-            } else if achievement.isUnlocked {
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundColor(.green)
+            VStack(alignment: .trailing, spacing: 4) {
+                Text(rewardLabel)
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundColor(achievement.isUnlocked ? .green : .orange)
+
+                if !achievement.isUnlocked && achievement.progressTarget > 1 {
+                    ProgressView(value: achievement.progress)
+                        .frame(width: 60)
+                        .tint(.blue)
+                } else if achievement.isUnlocked {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundColor(.green)
+                }
             }
         }
     }
