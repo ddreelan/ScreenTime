@@ -50,17 +50,20 @@ struct AppConfig: Codable, Identifiable {
     static var sampleRewardApps: [AppConfig] {
         [
             AppConfig(bundleIdentifier: "com.apple.Health", appName: "Health", appIcon: "heart.fill", configType: .reward, minutesPerMinute: 2.0, category: "Health"),
-            AppConfig(bundleIdentifier: "com.apple.Fitness", appName: "Fitness", appIcon: "figure.walk", configType: .reward, minutesPerMinute: 1.5, category: "Fitness"),
-            AppConfig(bundleIdentifier: "com.duolingo.duolingo", appName: "Duolingo", appIcon: "textbook.fill", configType: .reward, minutesPerMinute: 1.0, category: "Education"),
-            AppConfig(bundleIdentifier: "com.headspace.headspace", appName: "Headspace", appIcon: "brain.head.profile", configType: .reward, minutesPerMinute: 1.2, category: "Wellness"),
+            AppConfig(bundleIdentifier: "com.apple.Fitness", appName: "Fitness", appIcon: "figure.run", configType: .reward, minutesPerMinute: 1.5, category: "Fitness"),
+            AppConfig(bundleIdentifier: "com.duolingo.duolingo", appName: "Duolingo", appIcon: "character.book.closed.fill", configType: .reward, minutesPerMinute: 1.0, category: "Education"),
+            AppConfig(bundleIdentifier: "com.headspace.headspace", appName: "Headspace", appIcon: "brain.head.profile.fill", configType: .reward, minutesPerMinute: 1.2, category: "Wellness"),
+            AppConfig(bundleIdentifier: "com.audible.application", appName: "Audible", appIcon: "headphones", configType: .reward, minutesPerMinute: 0.8, category: "Education"),
         ]
     }
 
     static var samplePenaltyApps: [AppConfig] {
         [
-            AppConfig(bundleIdentifier: "com.zhiliaoapp.musically", appName: "TikTok", appIcon: "play.rectangle.fill", configType: .penalty, minutesPerMinute: -2.0, category: "Entertainment"),
+            AppConfig(bundleIdentifier: "com.zhiliaoapp.musically", appName: "TikTok", appIcon: "music.note.list", configType: .penalty, minutesPerMinute: -2.0, category: "Entertainment"),
             AppConfig(bundleIdentifier: "com.instagram.instagram", appName: "Instagram", appIcon: "camera.fill", configType: .penalty, minutesPerMinute: -1.5, category: "Social"),
-            AppConfig(bundleIdentifier: "com.atebits.Tweetie2", appName: "Twitter/X", appIcon: "bird.fill", configType: .penalty, minutesPerMinute: -1.0, category: "Social"),
+            AppConfig(bundleIdentifier: "com.atebits.Tweetie2", appName: "Twitter/X", appIcon: "bubble.left.fill", configType: .penalty, minutesPerMinute: -1.0, category: "Social"),
+            AppConfig(bundleIdentifier: "com.google.ios.youtube", appName: "YouTube", appIcon: "play.rectangle.fill", configType: .penalty, minutesPerMinute: -1.5, category: "Entertainment"),
+            AppConfig(bundleIdentifier: "com.facebook.Facebook", appName: "Facebook", appIcon: "person.2.fill", configType: .penalty, minutesPerMinute: -1.0, category: "Social"),
         ]
     }
 }

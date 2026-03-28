@@ -149,15 +149,17 @@ fun Long.toFormattedTime(): String {
 object DefaultData {
     val rewardApps = listOf(
         AppConfig(packageName = "com.google.android.apps.fitness", appName = "Google Fit", appIcon = "favorite", configType = AppConfigType.REWARD, minutesPerMinute = 2.0, category = "Health"),
-        AppConfig(packageName = "com.duolingo", appName = "Duolingo", appIcon = "translate", configType = AppConfigType.REWARD, minutesPerMinute = 1.0, category = "Education"),
+        AppConfig(packageName = "com.duolingo", appName = "Duolingo", appIcon = "school", configType = AppConfigType.REWARD, minutesPerMinute = 1.0, category = "Education"),
         AppConfig(packageName = "com.headspace.android", appName = "Headspace", appIcon = "self_improvement", configType = AppConfigType.REWARD, minutesPerMinute = 1.2, category = "Wellness"),
         AppConfig(packageName = "com.audible.application", appName = "Audible", appIcon = "headphones", configType = AppConfigType.REWARD, minutesPerMinute = 0.8, category = "Education")
     )
 
     val penaltyApps = listOf(
-        AppConfig(packageName = "com.zhiliaoapp.musically", appName = "TikTok", appIcon = "play_circle", configType = AppConfigType.PENALTY, minutesPerMinute = -2.0, category = "Entertainment"),
-        AppConfig(packageName = "com.instagram.android", appName = "Instagram", appIcon = "camera_alt", configType = AppConfigType.PENALTY, minutesPerMinute = -1.5, category = "Social"),
-        AppConfig(packageName = "com.twitter.android", appName = "Twitter/X", appIcon = "flutter_dash", configType = AppConfigType.PENALTY, minutesPerMinute = -1.0, category = "Social")
+        AppConfig(packageName = "com.zhiliaoapp.musically", appName = "TikTok", appIcon = "music_note", configType = AppConfigType.PENALTY, minutesPerMinute = -2.0, category = "Entertainment"),
+        AppConfig(packageName = "com.instagram.android", appName = "Instagram", appIcon = "photo_camera", configType = AppConfigType.PENALTY, minutesPerMinute = -1.5, category = "Social"),
+        AppConfig(packageName = "com.twitter.android", appName = "Twitter/X", appIcon = "chat_bubble", configType = AppConfigType.PENALTY, minutesPerMinute = -1.0, category = "Social"),
+        AppConfig(packageName = "com.google.android.youtube", appName = "YouTube", appIcon = "play_circle", configType = AppConfigType.PENALTY, minutesPerMinute = -1.5, category = "Entertainment"),
+        AppConfig(packageName = "com.facebook.katana", appName = "Facebook", appIcon = "group", configType = AppConfigType.PENALTY, minutesPerMinute = -1.0, category = "Social")
     )
 
     val achievements = listOf(

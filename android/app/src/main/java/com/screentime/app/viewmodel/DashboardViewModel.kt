@@ -46,6 +46,16 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
+    fun saveActivityAndEarnTime(activity: ActivityRecord, rewardSeconds: Long) {
+        viewModelScope.launch {
+            repository.saveActivity(activity)
+            val current = todaySummary.value
+            repository.updateSummary(current.copy(
+                totalEarnedSeconds = current.totalEarnedSeconds + rewardSeconds
+            ))
+        }
+    }
+
     fun recordUsage(durationSeconds: Long, appConfig: AppConfig?) {
         viewModelScope.launch {
             val current = todaySummary.value

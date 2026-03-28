@@ -1,5 +1,7 @@
 package com.screentime.app.ui.screens
 
+import android.graphics.drawable.Drawable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -10,8 +12,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.screentime.app.data.model.*
 import com.screentime.app.viewmodel.DashboardViewModel
@@ -111,8 +116,25 @@ fun AnalyticsSummaryCard(modifier: Modifier = Modifier, title: String, value: St
 @Composable
 fun AppBreakdownRow(config: AppConfig) {
     val color = if (config.configType == AppConfigType.REWARD) Color(0xFF4CAF50) else MaterialTheme.colorScheme.error
+    val context = LocalContext.current
+    val appIcon: Drawable? = remember(config.packageName) {
+        try {
+            context.packageManager.getApplicationIcon(config.packageName)
+        } catch (_: Exception) {
+            null
+        }
+    }
+
     Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-        Icon(Icons.Default.Apps, contentDescription = null, tint = color, modifier = Modifier.size(20.dp))
+        if (appIcon != null) {
+            Image(
+                bitmap = appIcon.toBitmap(20, 20).asImageBitmap(),
+                contentDescription = config.appName,
+                modifier = Modifier.size(20.dp)
+            )
+        } else {
+            Icon(Icons.Default.Apps, contentDescription = null, tint = color, modifier = Modifier.size(20.dp))
+        }
         Spacer(modifier = Modifier.width(8.dp))
         Text(config.appName, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
         Text(config.effectDescription, style = MaterialTheme.typography.bodySmall, color = color)

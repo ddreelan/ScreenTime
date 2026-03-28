@@ -4,6 +4,11 @@ struct DashboardView: View {
     @StateObject private var viewModel = DashboardViewModel()
     @EnvironmentObject var screenTimeService: ScreenTimeService
 
+    @State private var activeQuickStart: ActivityType? = nil
+    @State private var quickStartElapsed: TimeInterval = 0
+    @State private var quickStartTimer: Timer? = nil
+    @State private var showingQuickStartSheet = false
+
     var body: some View {
         NavigationView {
             ScrollView {
@@ -46,8 +51,14 @@ struct DashboardView: View {
                     }
 
                     // Quick Actions
-                    QuickActionsView()
-                        .padding(.horizontal)
+                    QuickActionsView(onQuickStart: { activityType in
+                        activeQuickStart = activityType
+                        quickStartElapsed = 0
+                        quickStartTimer?.invalidate()
+                        quickStartTimer = nil
+                        showingQuickStartSheet = true
+                    })
+                    .padding(.horizontal)
                 }
                 .padding(.bottom, 24)
             }
@@ -55,6 +66,36 @@ struct DashboardView: View {
             .navigationBarTitleDisplayMode(.large)
             .refreshable {
                 viewModel.refresh()
+            }
+            .sheet(isPresented: $showingQuickStartSheet, onDismiss: {
+                quickStartTimer?.invalidate()
+                quickStartTimer = nil
+            }) {
+                if let activityType = activeQuickStart {
+                    QuickStartTimerSheet(
+                        activityType: activityType,
+                        elapsed: $quickStartElapsed,
+                        timer: $quickStartTimer,
+                        onStopAndSave: { elapsed in
+                            let reward = ActivityVerificationService.shared.calculateReward(for: activityType, duration: elapsed)
+                            let activity = Activity(
+                                type: activityType,
+                                startTime: Date().addingTimeInterval(-elapsed),
+                                endTime: Date(),
+                                duration: elapsed,
+                                verificationMethod: .manual,
+                                status: .verified,
+                                rewardEarned: reward
+                            )
+                            DataStore.shared.addActivity(activity)
+                            screenTimeService.addEarnedTime(reward)
+                            showingQuickStartSheet = false
+                        },
+                        onDismiss: {
+                            showingQuickStartSheet = false
+                        }
+                    )
+                }
             }
         }
     }
@@ -158,16 +199,18 @@ struct ActivityRow: View {
 }
 
 struct QuickActionsView: View {
+    let onQuickStart: (ActivityType) -> Void
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Quick Start")
                 .font(.headline)
 
             HStack(spacing: 12) {
-                QuickActionButton(icon: "figure.walk", title: "Walk", color: .green)
-                QuickActionButton(icon: "book.fill", title: "Read", color: .blue)
-                QuickActionButton(icon: "brain.head.profile", title: "Meditate", color: .purple)
-                QuickActionButton(icon: "figure.run", title: "Run", color: .orange)
+                QuickActionButton(icon: "figure.walk", title: "Walk", color: .green) { onQuickStart(.walking) }
+                QuickActionButton(icon: "book.fill", title: "Read", color: .blue) { onQuickStart(.reading) }
+                QuickActionButton(icon: "brain.head.profile", title: "Meditate", color: .purple) { onQuickStart(.meditation) }
+                QuickActionButton(icon: "figure.run", title: "Run", color: .orange) { onQuickStart(.running) }
             }
         }
     }
@@ -177,19 +220,102 @@ struct QuickActionButton: View {
     let icon: String
     let title: String
     let color: Color
+    let onTap: () -> Void
 
     var body: some View {
-        VStack(spacing: 6) {
-            Image(systemName: icon)
-                .font(.title2)
-                .foregroundColor(color)
-                .frame(width: 50, height: 50)
-                .background(color.opacity(0.15))
-                .cornerRadius(12)
-            Text(title)
-                .font(.caption)
-                .foregroundColor(.secondary)
+        Button(action: onTap) {
+            VStack(spacing: 6) {
+                Image(systemName: icon)
+                    .font(.title2)
+                    .foregroundColor(color)
+                    .frame(width: 50, height: 50)
+                    .background(color.opacity(0.15))
+                    .cornerRadius(12)
+                Text(title)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            .frame(maxWidth: .infinity)
         }
-        .frame(maxWidth: .infinity)
+        .buttonStyle(.plain)
+    }
+}
+
+struct QuickStartTimerSheet: View {
+    let activityType: ActivityType
+    @Binding var elapsed: TimeInterval
+    @Binding var timer: Timer?
+    let onStopAndSave: (TimeInterval) -> Void
+    let onDismiss: () -> Void
+
+    @State private var isRunning = false
+
+    private var elapsedFormatted: String {
+        let mins = Int(elapsed) / 60
+        let secs = Int(elapsed) % 60
+        return String(format: "%02d:%02d", mins, secs)
+    }
+
+    private var estimatedReward: Double {
+        let reward = ActivityVerificationService.shared.calculateReward(for: activityType, duration: elapsed)
+        return reward / 60.0
+    }
+
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 24) {
+                Spacer()
+
+                Image(systemName: activityType.icon)
+                    .font(.system(size: 60))
+                    .foregroundColor(.blue)
+
+                Text(activityType.displayName)
+                    .font(.title)
+                    .fontWeight(.bold)
+
+                Text(elapsedFormatted)
+                    .font(.system(size: 56, weight: .bold, design: .monospaced))
+
+                Text("Earning: +\(String(format: "%.1f", estimatedReward))m")
+                    .font(.headline)
+                    .foregroundColor(.green)
+
+                Spacer()
+
+                if !isRunning {
+                    Button(action: startTimer) {
+                        Text("Start")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.green)
+                            .cornerRadius(14)
+                    }
+                } else {
+                    Button(action: { onStopAndSave(elapsed) }) {
+                        Text("Stop & Save")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.red)
+                            .cornerRadius(14)
+                    }
+                }
+            }
+            .padding(24)
+            .navigationTitle("Quick Start")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarItems(trailing: Button("Cancel") { onDismiss() })
+        }
+    }
+
+    private func startTimer() {
+        isRunning = true
+        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+            elapsed += 1
+        }
     }
 }
