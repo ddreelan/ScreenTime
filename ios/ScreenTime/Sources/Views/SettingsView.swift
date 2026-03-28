@@ -60,21 +60,12 @@ struct SettingsView: View {
                 // Reward Apps Section
                 Section(header: Text("Reward Apps (Earn Time)")) {
                     ForEach(viewModel.rewardApps) { config in
-                        VStack(spacing: 0) {
-                            AppConfigRow(config: config) {
-                                showingEditApp = config
-                            } onToggle: {
-                                viewModel.toggleAppEnabled(config)
-                            }
-                            Button {
-                                shortcutSetupConfig = config
-                            } label: {
-                                Label("Set Up Shortcut", systemImage: "arrow.trianglehead.2.counterclockwise.rotate.90")
-                                    .font(.caption)
-                                    .foregroundColor(.blue)
-                            }
-                            .padding(.leading, 44)
-                            .padding(.bottom, 6)
+                        AppConfigRow(config: config) {
+                            showingEditApp = config
+                        } onToggle: {
+                            viewModel.toggleAppEnabled(config)
+                        } onShortcut: {
+                            shortcutSetupConfig = config
                         }
                     }
                     .onDelete { offsets in
@@ -89,21 +80,12 @@ struct SettingsView: View {
                 // Penalty Apps Section
                 Section(header: Text("Penalty Apps (Cost More Time)")) {
                     ForEach(viewModel.penaltyApps) { config in
-                        VStack(spacing: 0) {
-                            AppConfigRow(config: config) {
-                                showingEditApp = config
-                            } onToggle: {
-                                viewModel.toggleAppEnabled(config)
-                            }
-                            Button {
-                                shortcutSetupConfig = config
-                            } label: {
-                                Label("Set Up Shortcut", systemImage: "arrow.trianglehead.2.counterclockwise.rotate.90")
-                                    .font(.caption)
-                                    .foregroundColor(.blue)
-                            }
-                            .padding(.leading, 44)
-                            .padding(.bottom, 6)
+                        AppConfigRow(config: config) {
+                            showingEditApp = config
+                        } onToggle: {
+                            viewModel.toggleAppEnabled(config)
+                        } onShortcut: {
+                            shortcutSetupConfig = config
                         }
                     }
                     .onDelete { offsets in
@@ -250,7 +232,7 @@ struct ShortcutSetupView: View {
                             EmptyView()
                         }
 
-                        StepView(number: 3, title: "Add the Open URL action", description: "Tap 'New Blank Automation' → search for 'Open URLs' → paste the URL below as the URL value.") {
+                        StepView(number: 3, title: "Add the Open URL action", description: "Tap 'New Blank Automation' → search for 'Open URLs' → paste the Start URL below as the URL value.") {
                             URLCopyRow(label: "Start URL", urlString: startURLString)
                         }
 
@@ -270,7 +252,7 @@ struct ShortcutSetupView: View {
                         Text("Test It")
                             .font(.headline)
                             .padding(.horizontal)
-                        Text("Tap the buttons below to test the URLs work. Your ScreenTime app should open and start/stop tracking.")
+                        Text("Tap the buttons below to verify the URLs work. Your ScreenTime app should open and start/stop tracking.")
                             .font(.caption)
                             .foregroundColor(.secondary)
                             .padding(.horizontal)
@@ -373,40 +355,63 @@ struct URLCopyRow: View {
     }
 }
 
-// MARK: - Existing subviews (unchanged)
+// MARK: - App Config Row
+// Now includes an onShortcut callback rendered as a tappable chevron button
 
 struct AppConfigRow: View {
     let config: AppConfig
     let onEdit: () -> Void
     let onToggle: () -> Void
+    let onShortcut: () -> Void
 
     var body: some View {
-        HStack(spacing: 12) {
-            if let icon = config.appIcon {
-                Image(systemName: icon)
-                    .foregroundColor(config.configType == .reward ? .green : .red)
-                    .frame(width: 32)
+        VStack(spacing: 0) {
+            HStack(spacing: 12) {
+                if let icon = config.appIcon {
+                    Image(systemName: icon)
+                        .foregroundColor(config.configType == .reward ? .green : .red)
+                        .frame(width: 32)
+                }
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(config.appName)
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                    Text(config.effectDescription)
+                        .font(.caption)
+                        .foregroundColor(config.configType == .reward ? .green : .red)
+                }
+
+                Spacer()
+
+                Toggle("", isOn: Binding(
+                    get: { config.isEnabled },
+                    set: { _ in onToggle() }
+                ))
+                .labelsHidden()
             }
+            .contentShape(Rectangle())
+            .onTapGesture { onEdit() }
 
-            VStack(alignment: .leading, spacing: 2) {
-                Text(config.appName)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                Text(config.effectDescription)
-                    .font(.caption)
-                    .foregroundColor(config.configType == .reward ? .green : .red)
+            // Shortcut button as its own clearly tappable row
+            Button(action: onShortcut) {
+                HStack(spacing: 6) {
+                    Image(systemName: "arrow.trianglehead.2.counterclockwise.rotate.90")
+                        .font(.caption)
+                    Text("Set Up Shortcut")
+                        .font(.caption)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+                .foregroundColor(.blue)
+                .padding(.top, 6)
+                .padding(.leading, 44)
+                .contentShape(Rectangle())
             }
-
-            Spacer()
-
-            Toggle("", isOn: Binding(
-                get: { config.isEnabled },
-                set: { _ in onToggle() }
-            ))
-            .labelsHidden()
+            .buttonStyle(.plain)
         }
-        .contentShape(Rectangle())
-        .onTapGesture { onEdit() }
     }
 }
 
