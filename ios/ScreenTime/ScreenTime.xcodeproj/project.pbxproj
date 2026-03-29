@@ -1,633 +1,443 @@
 // !$*UTF8*$!
 {
-archiveVersion = 1;
-classes = {
-};
-objectVersion = 56;
-objects = {
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
 
 /* Begin PBXBuildFile section */
-7B200101000000000000001 /* ScreenTimeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000001 /* ScreenTimeApp.swift */; };
-7B200101000000000000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000002 /* ContentView.swift */; };
-7B200101000000000000003 /* Achievement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000003 /* Achievement.swift */; };
-7B200101000000000000004 /* Activity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000004 /* Activity.swift */; };
-7B200101000000000000005 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000005 /* AppConfig.swift */; };
-7B200101000000000000006 /* ScreenTimeEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000006 /* ScreenTimeEntry.swift */; };
-7B200101000000000000007 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000007 /* UserProfile.swift */; };
-7B200101000000000000008 /* ActivityVerificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000008 /* ActivityVerificationService.swift */; };
-7B200101000000000000009 /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000009 /* DataStore.swift */; };
-7B200101000000000000010 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000010 /* NotificationService.swift */; };
-7B200101000000000000011 /* ScreenTimeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000011 /* ScreenTimeService.swift */; };
-7B200101000000000000012 /* ActivityViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000012 /* ActivityViewModel.swift */; };
-7B200101000000000000013 /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000013 /* DashboardViewModel.swift */; };
-7B200101000000000000014 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000014 /* SettingsViewModel.swift */; };
-7B200101000000000000015 /* ActivityVerificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000015 /* ActivityVerificationView.swift */; };
-7B200101000000000000016 /* AnalyticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000016 /* AnalyticsView.swift */; };
-7B200101000000000000017 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000017 /* DashboardView.swift */; };
-7B200101000000000000018 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000018 /* ProfileView.swift */; };
-7B200101000000000000019 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000019 /* SettingsView.swift */; };
-7B200101000000000000020 /* WidgetData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000022 /* WidgetData.swift */; };
-7B200101000000000000021 /* ScreenTimeWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000023 /* ScreenTimeWidget.swift */; };
-7B200101000000000000022 /* ScreenTimeWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000024 /* ScreenTimeWidgetBundle.swift */; };
-7B200101000000000000023 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000027 /* WidgetKit.framework */; };
-7B200101000000000000024 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000028 /* SwiftUI.framework */; };
-7B200101000000000000025 /* ScreenTimeWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000026 /* ScreenTimeWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		7B200101000000000000001 /* ScreenTimeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000001 /* ScreenTimeApp.swift */; };
+		7B200101000000000000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000002 /* ContentView.swift */; };
+		7B200101000000000000003 /* Achievement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000003 /* Achievement.swift */; };
+		7B200101000000000000004 /* Activity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000004 /* Activity.swift */; };
+		7B200101000000000000005 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000005 /* AppConfig.swift */; };
+		7B200101000000000000006 /* ScreenTimeEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000006 /* ScreenTimeEntry.swift */; };
+		7B200101000000000000007 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000007 /* UserProfile.swift */; };
+		7B200101000000000000008 /* ActivityVerificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000008 /* ActivityVerificationService.swift */; };
+		7B200101000000000000009 /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000009 /* DataStore.swift */; };
+		7B200101000000000000010 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000010 /* NotificationService.swift */; };
+		7B200101000000000000011 /* ScreenTimeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000011 /* ScreenTimeService.swift */; };
+		7B200101000000000000012 /* ActivityViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000012 /* ActivityViewModel.swift */; };
+		7B200101000000000000013 /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000013 /* DashboardViewModel.swift */; };
+		7B200101000000000000014 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000014 /* SettingsViewModel.swift */; };
+		7B200101000000000000015 /* ActivityVerificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000015 /* ActivityVerificationView.swift */; };
+		7B200101000000000000016 /* AnalyticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000016 /* AnalyticsView.swift */; };
+		7B200101000000000000017 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000017 /* DashboardView.swift */; };
+		7B200101000000000000018 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000018 /* ProfileView.swift */; };
+		7B200101000000000000019 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B100101000000000000019 /* SettingsView.swift */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-7B800101000000000000001 /* PBXContainerItemProxy */ = {
-isa = PBXContainerItemProxy;
-containerPortal = 7B000101000000000000001 /* Project object */;
-proxyType = 1;
-remoteGlobalIDString = 7B500101000000000000002;
-remoteInfo = ScreenTimeWidgetExtension;
-};
-/* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-7B300101000000000000007 /* Embed Foundation Extensions */ = {
-isa = PBXCopyFilesBuildPhase;
-buildActionMask = 2147483647;
-dstPath = "";
-dstSubfolderSpec = 13;
-files = (
-7B200101000000000000025 /* ScreenTimeWidgetExtension.appex in Embed Foundation Extensions */,
-);
-name = "Embed Foundation Extensions";
-runOnlyForDeploymentPostprocessing = 0;
-};
-/* End PBXCopyFilesBuildPhase section */
-
 /* Begin PBXFileReference section */
-7B100101000000000000001 /* ScreenTimeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenTimeApp.swift; sourceTree = "<group>"; };
-7B100101000000000000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-7B100101000000000000003 /* Achievement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Achievement.swift; sourceTree = "<group>"; };
-7B100101000000000000004 /* Activity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Activity.swift; sourceTree = "<group>"; };
-7B100101000000000000005 /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
-7B100101000000000000006 /* ScreenTimeEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenTimeEntry.swift; sourceTree = "<group>"; };
-7B100101000000000000007 /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
-7B100101000000000000008 /* ActivityVerificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityVerificationService.swift; sourceTree = "<group>"; };
-7B100101000000000000009 /* DataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataStore.swift; sourceTree = "<group>"; };
-7B100101000000000000010 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
-7B100101000000000000011 /* ScreenTimeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenTimeService.swift; sourceTree = "<group>"; };
-7B100101000000000000012 /* ActivityViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityViewModel.swift; sourceTree = "<group>"; };
-7B100101000000000000013 /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
-7B100101000000000000014 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
-7B100101000000000000015 /* ActivityVerificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityVerificationView.swift; sourceTree = "<group>"; };
-7B100101000000000000016 /* AnalyticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsView.swift; sourceTree = "<group>"; };
-7B100101000000000000017 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
-7B100101000000000000018 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
-7B100101000000000000019 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-7B100101000000000000020 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-7B100101000000000000021 /* ScreenTime.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScreenTime.app; sourceTree = BUILT_PRODUCTS_DIR; };
-7B100101000000000000022 /* WidgetData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetData.swift; sourceTree = "<group>"; };
-7B100101000000000000023 /* ScreenTimeWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenTimeWidget.swift; sourceTree = "<group>"; };
-7B100101000000000000024 /* ScreenTimeWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenTimeWidgetBundle.swift; sourceTree = "<group>"; };
-7B100101000000000000025 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-7B100101000000000000026 /* ScreenTimeWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ScreenTimeWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-7B100101000000000000027 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
-7B100101000000000000028 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
-7B100101000000000000029 /* ScreenTime.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ScreenTime.entitlements; sourceTree = "<group>"; };
-7B100101000000000000030 /* ScreenTimeWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ScreenTimeWidgetExtension.entitlements; sourceTree = "<group>"; };
+		7B100101000000000000001 /* ScreenTimeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenTimeApp.swift; sourceTree = "<group>"; };
+		7B100101000000000000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		7B100101000000000000003 /* Achievement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Achievement.swift; sourceTree = "<group>"; };
+		7B100101000000000000004 /* Activity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Activity.swift; sourceTree = "<group>"; };
+		7B100101000000000000005 /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
+		7B100101000000000000006 /* ScreenTimeEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenTimeEntry.swift; sourceTree = "<group>"; };
+		7B100101000000000000007 /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
+		7B100101000000000000008 /* ActivityVerificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityVerificationService.swift; sourceTree = "<group>"; };
+		7B100101000000000000009 /* DataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataStore.swift; sourceTree = "<group>"; };
+		7B100101000000000000010 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		7B100101000000000000011 /* ScreenTimeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenTimeService.swift; sourceTree = "<group>"; };
+		7B100101000000000000012 /* ActivityViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityViewModel.swift; sourceTree = "<group>"; };
+		7B100101000000000000013 /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
+		7B100101000000000000014 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
+		7B100101000000000000015 /* ActivityVerificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityVerificationView.swift; sourceTree = "<group>"; };
+		7B100101000000000000016 /* AnalyticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsView.swift; sourceTree = "<group>"; };
+		7B100101000000000000017 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		7B100101000000000000018 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		7B100101000000000000019 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		7B100101000000000000020 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		7B100101000000000000021 /* ScreenTime.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScreenTime.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-7B300101000000000000001 /* Frameworks */ = {
-isa = PBXFrameworksBuildPhase;
-buildActionMask = 2147483647;
-files = (
-);
-runOnlyForDeploymentPostprocessing = 0;
-};
-7B300101000000000000004 /* Frameworks */ = {
-isa = PBXFrameworksBuildPhase;
-buildActionMask = 2147483647;
-files = (
-7B200101000000000000023 /* WidgetKit.framework in Frameworks */,
-7B200101000000000000024 /* SwiftUI.framework in Frameworks */,
-);
-runOnlyForDeploymentPostprocessing = 0;
-};
+		7B300101000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-7B400101000000000000001 /* ScreenTime */ = {
-isa = PBXGroup;
-children = (
-7B400101000000000000002 /* Sources */,
-7B400101000000000000008 /* ScreenTime */,
-7B400101000000000000010 /* ScreenTimeWidget */,
-7B400101000000000000011 /* Frameworks */,
-7B400101000000000000009 /* Products */,
-);
-sourceTree = "<group>";
-};
-7B400101000000000000002 /* Sources */ = {
-isa = PBXGroup;
-children = (
-7B400101000000000000003 /* App */,
-7B400101000000000000004 /* Models */,
-7B400101000000000000005 /* Services */,
-7B400101000000000000006 /* ViewModels */,
-7B400101000000000000007 /* Views */,
-);
-path = Sources;
-sourceTree = SOURCE_ROOT;
-};
-7B400101000000000000003 /* App */ = {
-isa = PBXGroup;
-children = (
-7B100101000000000000001 /* ScreenTimeApp.swift */,
-7B100101000000000000002 /* ContentView.swift */,
-);
-path = App;
-sourceTree = "<group>";
-};
-7B400101000000000000004 /* Models */ = {
-isa = PBXGroup;
-children = (
-7B100101000000000000003 /* Achievement.swift */,
-7B100101000000000000004 /* Activity.swift */,
-7B100101000000000000005 /* AppConfig.swift */,
-7B100101000000000000006 /* ScreenTimeEntry.swift */,
-7B100101000000000000007 /* UserProfile.swift */,
-7B100101000000000000022 /* WidgetData.swift */,
-);
-path = Models;
-sourceTree = "<group>";
-};
-7B400101000000000000005 /* Services */ = {
-isa = PBXGroup;
-children = (
-7B100101000000000000008 /* ActivityVerificationService.swift */,
-7B100101000000000000009 /* DataStore.swift */,
-7B100101000000000000010 /* NotificationService.swift */,
-7B100101000000000000011 /* ScreenTimeService.swift */,
-);
-path = Services;
-sourceTree = "<group>";
-};
-7B400101000000000000006 /* ViewModels */ = {
-isa = PBXGroup;
-children = (
-7B100101000000000000012 /* ActivityViewModel.swift */,
-7B100101000000000000013 /* DashboardViewModel.swift */,
-7B100101000000000000014 /* SettingsViewModel.swift */,
-);
-path = ViewModels;
-sourceTree = "<group>";
-};
-7B400101000000000000007 /* Views */ = {
-isa = PBXGroup;
-children = (
-7B100101000000000000015 /* ActivityVerificationView.swift */,
-7B100101000000000000016 /* AnalyticsView.swift */,
-7B100101000000000000017 /* DashboardView.swift */,
-7B100101000000000000018 /* ProfileView.swift */,
-7B100101000000000000019 /* SettingsView.swift */,
-);
-path = Views;
-sourceTree = "<group>";
-};
-7B400101000000000000008 /* ScreenTime */ = {
-isa = PBXGroup;
-children = (
-7B100101000000000000020 /* Info.plist */,
-7B100101000000000000029 /* ScreenTime.entitlements */,
-);
-path = ScreenTime;
-sourceTree = SOURCE_ROOT;
-};
-7B400101000000000000009 /* Products */ = {
-isa = PBXGroup;
-children = (
-7B100101000000000000021 /* ScreenTime.app */,
-7B100101000000000000026 /* ScreenTimeWidgetExtension.appex */,
-);
-name = Products;
-sourceTree = "<group>";
-};
-7B400101000000000000010 /* ScreenTimeWidget */ = {
-isa = PBXGroup;
-children = (
-7B100101000000000000023 /* ScreenTimeWidget.swift */,
-7B100101000000000000024 /* ScreenTimeWidgetBundle.swift */,
-7B100101000000000000025 /* Info.plist */,
-7B100101000000000000030 /* ScreenTimeWidgetExtension.entitlements */,
-);
-path = ScreenTimeWidget;
-sourceTree = SOURCE_ROOT;
-};
-7B400101000000000000011 /* Frameworks */ = {
-isa = PBXGroup;
-children = (
-7B100101000000000000027 /* WidgetKit.framework */,
-7B100101000000000000028 /* SwiftUI.framework */,
-);
-name = Frameworks;
-sourceTree = "<group>";
-};
+		7B400101000000000000001 /* ScreenTime */ = {
+			isa = PBXGroup;
+			children = (
+				7B400101000000000000002 /* Sources */,
+				7B400101000000000000008 /* ScreenTime */,
+				7B400101000000000000009 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		7B400101000000000000002 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				7B400101000000000000003 /* App */,
+				7B400101000000000000004 /* Models */,
+				7B400101000000000000005 /* Services */,
+				7B400101000000000000006 /* ViewModels */,
+				7B400101000000000000007 /* Views */,
+			);
+			path = Sources;
+			sourceTree = SOURCE_ROOT;
+		};
+		7B400101000000000000003 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				7B100101000000000000001 /* ScreenTimeApp.swift */,
+				7B100101000000000000002 /* ContentView.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		7B400101000000000000004 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				7B100101000000000000003 /* Achievement.swift */,
+				7B100101000000000000004 /* Activity.swift */,
+				7B100101000000000000005 /* AppConfig.swift */,
+				7B100101000000000000006 /* ScreenTimeEntry.swift */,
+				7B100101000000000000007 /* UserProfile.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		7B400101000000000000005 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				7B100101000000000000008 /* ActivityVerificationService.swift */,
+				7B100101000000000000009 /* DataStore.swift */,
+				7B100101000000000000010 /* NotificationService.swift */,
+				7B100101000000000000011 /* ScreenTimeService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		7B400101000000000000006 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				7B100101000000000000012 /* ActivityViewModel.swift */,
+				7B100101000000000000013 /* DashboardViewModel.swift */,
+				7B100101000000000000014 /* SettingsViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		7B400101000000000000007 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				7B100101000000000000015 /* ActivityVerificationView.swift */,
+				7B100101000000000000016 /* AnalyticsView.swift */,
+				7B100101000000000000017 /* DashboardView.swift */,
+				7B100101000000000000018 /* ProfileView.swift */,
+				7B100101000000000000019 /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		7B400101000000000000008 /* ScreenTime */ = {
+			isa = PBXGroup;
+			children = (
+				7B100101000000000000020 /* Info.plist */,
+			);
+			path = ScreenTime;
+			sourceTree = SOURCE_ROOT;
+		};
+		7B400101000000000000009 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7B100101000000000000021 /* ScreenTime.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-7B500101000000000000001 /* ScreenTime */ = {
-isa = PBXNativeTarget;
-buildConfigurationList = 7B600101000000000000002 /* Build configuration list for PBXNativeTarget "ScreenTime" */;
-buildPhases = (
-7B300101000000000000002 /* Sources */,
-7B300101000000000000001 /* Frameworks */,
-7B300101000000000000003 /* Resources */,
-7B300101000000000000007 /* Embed Foundation Extensions */,
-);
-buildRules = (
-);
-dependencies = (
-7B900101000000000000001 /* PBXTargetDependency */,
-);
-name = ScreenTime;
-productName = ScreenTime;
-productReference = 7B100101000000000000021 /* ScreenTime.app */;
-productType = "com.apple.product-type.application";
-};
-7B500101000000000000002 /* ScreenTimeWidgetExtension */ = {
-isa = PBXNativeTarget;
-buildConfigurationList = 7B600101000000000000003 /* Build configuration list for PBXNativeTarget "ScreenTimeWidgetExtension" */;
-buildPhases = (
-7B300101000000000000005 /* Sources */,
-7B300101000000000000004 /* Frameworks */,
-7B300101000000000000006 /* Resources */,
-);
-buildRules = (
-);
-dependencies = (
-);
-name = ScreenTimeWidgetExtension;
-productName = ScreenTimeWidgetExtension;
-productReference = 7B100101000000000000026 /* ScreenTimeWidgetExtension.appex */;
-productType = "com.apple.product-type.app-extension";
-};
+		7B500101000000000000001 /* ScreenTime */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7B600101000000000000002 /* Build configuration list for PBXNativeTarget "ScreenTime" */;
+			buildPhases = (
+				7B300101000000000000002 /* Sources */,
+				7B300101000000000000001 /* Frameworks */,
+				7B300101000000000000003 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ScreenTime;
+			productName = ScreenTime;
+			productReference = 7B100101000000000000021 /* ScreenTime.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-7B000101000000000000001 /* Project object */ = {
-isa = PBXProject;
-attributes = {
-BuildIndependentTargetsInParallel = 1;
-LastSwiftUpdateCheck = 1630;
-LastUpgradeCheck = 1630;
-TargetAttributes = {
-7B500101000000000000001 = {
-CreatedOnToolsVersion = 16.3;
-};
-7B500101000000000000002 = {
-CreatedOnToolsVersion = 16.3;
-};
-};
-};
-buildConfigurationList = 7B600101000000000000001 /* Build configuration list for PBXProject "ScreenTime" */;
-compatibilityVersion = "Xcode 14.0";
-developmentRegion = en;
-hasScannedForEncodings = 0;
-knownRegions = (
-en,
-Base,
-);
-mainGroup = 7B400101000000000000001 /* ScreenTime */;
-productRefGroup = 7B400101000000000000009 /* Products */;
-projectDirPath = "";
-projectRoot = "";
-targets = (
-7B500101000000000000001 /* ScreenTime */,
-7B500101000000000000002 /* ScreenTimeWidgetExtension */,
-);
-};
+		7B000101000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1630;
+				LastUpgradeCheck = 1630;
+				TargetAttributes = {
+					7B500101000000000000001 = {
+						CreatedOnToolsVersion = 16.3;
+					};
+				};
+			};
+			buildConfigurationList = 7B600101000000000000001 /* Build configuration list for PBXProject "ScreenTime" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 7B400101000000000000001 /* ScreenTime */;
+			productRefGroup = 7B400101000000000000009 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				7B500101000000000000001 /* ScreenTime */,
+			);
+		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-7B300101000000000000003 /* Resources */ = {
-isa = PBXResourcesBuildPhase;
-buildActionMask = 2147483647;
-files = (
-);
-runOnlyForDeploymentPostprocessing = 0;
-};
-7B300101000000000000006 /* Resources */ = {
-isa = PBXResourcesBuildPhase;
-buildActionMask = 2147483647;
-files = (
-);
-runOnlyForDeploymentPostprocessing = 0;
-};
+		7B300101000000000000003 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-7B300101000000000000002 /* Sources */ = {
-isa = PBXSourcesBuildPhase;
-buildActionMask = 2147483647;
-files = (
-7B200101000000000000001 /* ScreenTimeApp.swift in Sources */,
-7B200101000000000000002 /* ContentView.swift in Sources */,
-7B200101000000000000003 /* Achievement.swift in Sources */,
-7B200101000000000000004 /* Activity.swift in Sources */,
-7B200101000000000000005 /* AppConfig.swift in Sources */,
-7B200101000000000000006 /* ScreenTimeEntry.swift in Sources */,
-7B200101000000000000007 /* UserProfile.swift in Sources */,
-7B200101000000000000008 /* ActivityVerificationService.swift in Sources */,
-7B200101000000000000009 /* DataStore.swift in Sources */,
-7B200101000000000000010 /* NotificationService.swift in Sources */,
-7B200101000000000000011 /* ScreenTimeService.swift in Sources */,
-7B200101000000000000012 /* ActivityViewModel.swift in Sources */,
-7B200101000000000000013 /* DashboardViewModel.swift in Sources */,
-7B200101000000000000014 /* SettingsViewModel.swift in Sources */,
-7B200101000000000000015 /* ActivityVerificationView.swift in Sources */,
-7B200101000000000000016 /* AnalyticsView.swift in Sources */,
-7B200101000000000000017 /* DashboardView.swift in Sources */,
-7B200101000000000000018 /* ProfileView.swift in Sources */,
-7B200101000000000000019 /* SettingsView.swift in Sources */,
-7B200101000000000000020 /* WidgetData.swift in Sources */,
-);
-runOnlyForDeploymentPostprocessing = 0;
-};
-7B300101000000000000005 /* Sources */ = {
-isa = PBXSourcesBuildPhase;
-buildActionMask = 2147483647;
-files = (
-7B200101000000000000021 /* ScreenTimeWidget.swift in Sources */,
-7B200101000000000000022 /* ScreenTimeWidgetBundle.swift in Sources */,
-);
-runOnlyForDeploymentPostprocessing = 0;
-};
+		7B300101000000000000002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7B200101000000000000001 /* ScreenTimeApp.swift in Sources */,
+				7B200101000000000000002 /* ContentView.swift in Sources */,
+				7B200101000000000000003 /* Achievement.swift in Sources */,
+				7B200101000000000000004 /* Activity.swift in Sources */,
+				7B200101000000000000005 /* AppConfig.swift in Sources */,
+				7B200101000000000000006 /* ScreenTimeEntry.swift in Sources */,
+				7B200101000000000000007 /* UserProfile.swift in Sources */,
+				7B200101000000000000008 /* ActivityVerificationService.swift in Sources */,
+				7B200101000000000000009 /* DataStore.swift in Sources */,
+				7B200101000000000000010 /* NotificationService.swift in Sources */,
+				7B200101000000000000011 /* ScreenTimeService.swift in Sources */,
+				7B200101000000000000012 /* ActivityViewModel.swift in Sources */,
+				7B200101000000000000013 /* DashboardViewModel.swift in Sources */,
+				7B200101000000000000014 /* SettingsViewModel.swift in Sources */,
+				7B200101000000000000015 /* ActivityVerificationView.swift in Sources */,
+				7B200101000000000000016 /* AnalyticsView.swift in Sources */,
+				7B200101000000000000017 /* DashboardView.swift in Sources */,
+				7B200101000000000000018 /* ProfileView.swift in Sources */,
+				7B200101000000000000019 /* SettingsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
-/* Begin PBXTargetDependency section */
-7B900101000000000000001 /* PBXTargetDependency */ = {
-isa = PBXTargetDependency;
-target = 7B500101000000000000002 /* ScreenTimeWidgetExtension */;
-targetProxy = 7B800101000000000000001 /* PBXContainerItemProxy */;
-};
-/* End PBXTargetDependency section */
-
 /* Begin XCBuildConfiguration section */
-7B700101000000000000001 /* Debug */ = {
-isa = XCBuildConfiguration;
-buildSettings = {
-ALWAYS_SEARCH_USER_PATHS = NO;
-ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-CLANG_ANALYZER_NONNULL = YES;
-CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-CLANG_ENABLE_MODULES = YES;
-CLANG_ENABLE_OBJC_ARC = YES;
-CLANG_ENABLE_OBJC_WEAK = YES;
-CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
-CLANG_WARN_BOOL_CONVERSION = YES;
-CLANG_WARN_COMMA = YES;
-CLANG_WARN_CONSTANT_CONVERSION = YES;
-CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
-CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-CLANG_WARN_EMPTY_BODY = YES;
-CLANG_WARN_ENUM_CONVERSION = YES;
-CLANG_WARN_INFINITE_RECURSION = YES;
-CLANG_WARN_INT_CONVERSION = YES;
-CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
-CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
-CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-CLANG_WARN_STRICT_PROTOTYPES = YES;
-CLANG_WARN_SUSPICIOUS_MOVE = YES;
-CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-CLANG_WARN_UNREACHABLE_CODE = YES;
-CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-COPY_PHASE_STRIP = NO;
-DEBUG_INFORMATION_FORMAT = dwarf;
-ENABLE_STRICT_OBJC_MSGSEND = YES;
-ENABLE_TESTABILITY = YES;
-ENABLE_USER_SCRIPT_SANDBOXING = YES;
-GCC_C_LANGUAGE_STANDARD = gnu17;
-GCC_DYNAMIC_NO_PIC = NO;
-GCC_NO_COMMON_BLOCKS = YES;
-GCC_OPTIMIZATION_LEVEL = 0;
-GCC_PREPROCESSOR_DEFINITIONS = (
-"DEBUG=1",
-"$(inherited)",
-);
-GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-GCC_WARN_UNDECLARED_SELECTOR = YES;
-GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-GCC_WARN_UNUSED_FUNCTION = YES;
-GCC_WARN_UNUSED_VARIABLE = YES;
-IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-MTL_FAST_MATH = YES;
-ONLY_ACTIVE_ARCH = YES;
-SDKROOT = iphoneos;
-SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
-SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-};
-name = Debug;
-};
-7B700101000000000000002 /* Release */ = {
-isa = XCBuildConfiguration;
-buildSettings = {
-ALWAYS_SEARCH_USER_PATHS = NO;
-ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-CLANG_ANALYZER_NONNULL = YES;
-CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-CLANG_ENABLE_MODULES = YES;
-CLANG_ENABLE_OBJC_ARC = YES;
-CLANG_ENABLE_OBJC_WEAK = YES;
-CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
-CLANG_WARN_BOOL_CONVERSION = YES;
-CLANG_WARN_COMMA = YES;
-CLANG_WARN_CONSTANT_CONVERSION = YES;
-CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
-CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-CLANG_WARN_EMPTY_BODY = YES;
-CLANG_WARN_ENUM_CONVERSION = YES;
-CLANG_WARN_INFINITE_RECURSION = YES;
-CLANG_WARN_INT_CONVERSION = YES;
-CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
-CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
-CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-CLANG_WARN_STRICT_PROTOTYPES = YES;
-CLANG_WARN_SUSPICIOUS_MOVE = YES;
-CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-CLANG_WARN_UNREACHABLE_CODE = YES;
-CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-COPY_PHASE_STRIP = NO;
-DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-ENABLE_NS_ASSERTIONS = NO;
-ENABLE_STRICT_OBJC_MSGSEND = YES;
-ENABLE_USER_SCRIPT_SANDBOXING = YES;
-GCC_C_LANGUAGE_STANDARD = gnu17;
-GCC_NO_COMMON_BLOCKS = YES;
-GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-GCC_WARN_UNDECLARED_SELECTOR = YES;
-GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-GCC_WARN_UNUSED_FUNCTION = YES;
-GCC_WARN_UNUSED_VARIABLE = YES;
-IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-MTL_FAST_MATH = YES;
-SDKROOT = iphoneos;
-SWIFT_COMPILATION_MODE = wholemodule;
-VALIDATE_PRODUCT = YES;
-};
-name = Release;
-};
-7B700101000000000000003 /* Debug */ = {
-isa = XCBuildConfiguration;
-buildSettings = {
-ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-CODE_SIGN_ENTITLEMENTS = ScreenTime/ScreenTime.entitlements;
-CODE_SIGN_STYLE = Automatic;
-CURRENT_PROJECT_VERSION = 1;
-DEVELOPMENT_TEAM = "";
-ENABLE_PREVIEWS = YES;
-GENERATE_INFOPLIST_FILE = NO;
-INFOPLIST_FILE = ScreenTime/Info.plist;
-IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-LD_RUNPATH_SEARCH_PATHS = (
-"$(inherited)",
-"@executable_path/Frameworks",
-);
-MARKETING_VERSION = 1.0;
-PRODUCT_BUNDLE_IDENTIFIER = com.ddreelan.ScreenTime;
-PRODUCT_NAME = "$(TARGET_NAME)";
-SDKROOT = iphoneos;
-SWIFT_EMIT_LOC_STRINGS = YES;
-SWIFT_VERSION = 5.0;
-TARGETED_DEVICE_FAMILY = 1;
-};
-name = Debug;
-};
-7B700101000000000000004 /* Release */ = {
-isa = XCBuildConfiguration;
-buildSettings = {
-ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-CODE_SIGN_ENTITLEMENTS = ScreenTime/ScreenTime.entitlements;
-CODE_SIGN_STYLE = Automatic;
-CURRENT_PROJECT_VERSION = 1;
-DEVELOPMENT_TEAM = "";
-ENABLE_PREVIEWS = YES;
-GENERATE_INFOPLIST_FILE = NO;
-INFOPLIST_FILE = ScreenTime/Info.plist;
-IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-LD_RUNPATH_SEARCH_PATHS = (
-"$(inherited)",
-"@executable_path/Frameworks",
-);
-MARKETING_VERSION = 1.0;
-PRODUCT_BUNDLE_IDENTIFIER = com.ddreelan.ScreenTime;
-PRODUCT_NAME = "$(TARGET_NAME)";
-SDKROOT = iphoneos;
-SWIFT_EMIT_LOC_STRINGS = YES;
-SWIFT_VERSION = 5.0;
-TARGETED_DEVICE_FAMILY = 1;
-};
-name = Release;
-};
-7B700101000000000000005 /* Debug */ = {
-isa = XCBuildConfiguration;
-buildSettings = {
-ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-CODE_SIGN_ENTITLEMENTS = ScreenTimeWidget/ScreenTimeWidgetExtension.entitlements;
-CODE_SIGN_STYLE = Automatic;
-CURRENT_PROJECT_VERSION = 1;
-DEVELOPMENT_TEAM = "";
-GENERATE_INFOPLIST_FILE = NO;
-INFOPLIST_FILE = ScreenTimeWidget/Info.plist;
-IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-LD_RUNPATH_SEARCH_PATHS = (
-"$(inherited)",
-"@executable_path/Frameworks",
-"@executable_path/../../Frameworks",
-);
-MARKETING_VERSION = 1.0;
-PRODUCT_BUNDLE_IDENTIFIER = com.ddreelan.ScreenTime.ScreenTimeWidget;
-PRODUCT_NAME = "$(TARGET_NAME)";
-SDKROOT = iphoneos;
-SKIP_INSTALL = YES;
-SWIFT_EMIT_LOC_STRINGS = YES;
-SWIFT_VERSION = 5.0;
-TARGETED_DEVICE_FAMILY = 1;
-};
-name = Debug;
-};
-7B700101000000000000006 /* Release */ = {
-isa = XCBuildConfiguration;
-buildSettings = {
-ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-CODE_SIGN_ENTITLEMENTS = ScreenTimeWidget/ScreenTimeWidgetExtension.entitlements;
-CODE_SIGN_STYLE = Automatic;
-CURRENT_PROJECT_VERSION = 1;
-DEVELOPMENT_TEAM = "";
-GENERATE_INFOPLIST_FILE = NO;
-INFOPLIST_FILE = ScreenTimeWidget/Info.plist;
-IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-LD_RUNPATH_SEARCH_PATHS = (
-"$(inherited)",
-"@executable_path/Frameworks",
-"@executable_path/../../Frameworks",
-);
-MARKETING_VERSION = 1.0;
-PRODUCT_BUNDLE_IDENTIFIER = com.ddreelan.ScreenTime.ScreenTimeWidget;
-PRODUCT_NAME = "$(TARGET_NAME)";
-SDKROOT = iphoneos;
-SKIP_INSTALL = YES;
-SWIFT_EMIT_LOC_STRINGS = YES;
-SWIFT_VERSION = 5.0;
-TARGETED_DEVICE_FAMILY = 1;
-};
-name = Release;
-};
+		7B700101000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		7B700101000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		7B700101000000000000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = ScreenTime/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ddreelan.ScreenTime;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		7B700101000000000000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = ScreenTime/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ddreelan.ScreenTime;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-7B600101000000000000001 /* Build configuration list for PBXProject "ScreenTime" */ = {
-isa = XCConfigurationList;
-buildConfigurations = (
-7B700101000000000000001 /* Debug */,
-7B700101000000000000002 /* Release */,
-);
-defaultConfigurationIsVisible = 0;
-defaultConfigurationName = Release;
-};
-7B600101000000000000002 /* Build configuration list for PBXNativeTarget "ScreenTime" */ = {
-isa = XCConfigurationList;
-buildConfigurations = (
-7B700101000000000000003 /* Debug */,
-7B700101000000000000004 /* Release */,
-);
-defaultConfigurationIsVisible = 0;
-defaultConfigurationName = Release;
-};
-7B600101000000000000003 /* Build configuration list for PBXNativeTarget "ScreenTimeWidgetExtension" */ = {
-isa = XCConfigurationList;
-buildConfigurations = (
-7B700101000000000000005 /* Debug */,
-7B700101000000000000006 /* Release */,
-);
-defaultConfigurationIsVisible = 0;
-defaultConfigurationName = Release;
-};
+		7B600101000000000000001 /* Build configuration list for PBXProject "ScreenTime" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7B700101000000000000001 /* Debug */,
+				7B700101000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7B600101000000000000002 /* Build configuration list for PBXNativeTarget "ScreenTime" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7B700101000000000000003 /* Debug */,
+				7B700101000000000000004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
 
-};
-rootObject = 7B000101000000000000001 /* Project object */;
+	};
+	rootObject = 7B000101000000000000001 /* Project object */;
 }

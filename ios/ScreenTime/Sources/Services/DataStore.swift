@@ -68,7 +68,6 @@ class DataStore: ObservableObject {
     func saveAppConfigs(_ configs: [AppConfig]) {
         appConfigs = configs
         saveObject(configs, forKey: appConfigsKey)
-        updateWidgetData()
     }
 
     func addAppConfig(_ config: AppConfig) {
@@ -135,33 +134,6 @@ class DataStore: ObservableObject {
         summaries = summaries.filter { $0.date >= thirtyDaysAgo }
         weeklyHistory = summaries
         saveObject(summaries, forKey: summaryKey)
-        updateWidgetData()
-    }
-
-    // MARK: - Widget Data
-
-    func updateWidgetData() {
-        let topApps = appConfigs
-            .filter { $0.isEnabled && $0.configType != .neutral }
-            .sorted { abs($0.minutesPerMinute) > abs($1.minutesPerMinute) }
-            .prefix(3)
-            .map { WidgetAppInfo(
-                appName: $0.appName,
-                iconName: $0.appIcon,
-                minutesPerMinute: $0.minutesPerMinute,
-                configType: $0.configType.rawValue
-            ) }
-
-        let data = WidgetData(
-            remainingSeconds: todaySummary.remaining,
-            totalEarned: todaySummary.totalEarned,
-            totalPenalty: todaySummary.totalPenalty,
-            totalAllocated: todaySummary.totalAllocated,
-            totalUsed: todaySummary.totalUsed,
-            topApps: Array(topApps),
-            lastUpdated: Date()
-        )
-        data.save()
     }
 
     private func loadDefaultAppsIfNeeded() {
