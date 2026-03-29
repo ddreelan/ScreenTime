@@ -90,12 +90,12 @@ class URLHandler {
 
         let scheme = knownSchemes[bundleID] ?? "\(bundleID)://"
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
             guard let url = URL(string: scheme) else { return }
-            if UIApplication.shared.canOpenURL(url) {
-                UIApplication.shared.open(url, options: [:], completionHandler: nil)
-            } else {
-                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            UIApplication.shared.open(url, options: [:]) { success in
+                if !success {
+                    print("[URLHandler] Failed to open \(scheme) for bundleID: \(bundleID)")
+                }
             }
         }
     }
