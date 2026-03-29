@@ -70,10 +70,9 @@ class DashboardViewModel: ObservableObject {
             )
             events.append(event)
         }
-        recentGainsPenalties = events
-            .sorted { $0.timestamp > $1.timestamp }
-            .prefix(5)
-            .map { $0 }
+        recentGainsPenalties = Array(
+            events.sorted { $0.timestamp > $1.timestamp }.prefix(5)
+        )
     }
 
     func refresh() {

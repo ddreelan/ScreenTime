@@ -80,7 +80,8 @@ describe('Screen Time API', () => {
         todayStart.setHours(0, 0, 0, 0);
         const dayStartMs = todayStart.getTime();
 
-        // Create a screen time entry with positive time_earned_or_spent (earlier)
+        // Create a screen time entry (time_earned_or_spent defaults to 0 since the
+        // POST endpoint doesn't expose that field — so this entry won't appear in gains-penalties)
         await request(app)
             .post('/api/v1/screen-time/entries')
             .set('Authorization', `Bearer ${authToken}`)
@@ -91,9 +92,7 @@ describe('Screen Time API', () => {
                 startTime: now - 3000,
             });
 
-        // Manually insert an entry with time_earned_or_spent (the POST endpoint doesn't expose this field,
-        // so we verify by checking that entries with time_earned_or_spent=0 are excluded)
-
+        // Manually insert an entry with time_earned_or_spent=0 won't appear in results.
         // Create a verified activity with reward (more recent)
         await request(app)
             .post('/api/v1/activities')

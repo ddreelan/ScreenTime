@@ -116,13 +116,6 @@ struct RecentGainsPenaltiesSection: View {
     let events: [GainPenaltyEvent]
     @State private var showAll = false
 
-    private static let timeFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.timeStyle = .short
-        f.dateStyle = .none
-        return f
-    }()
-
     var displayEvents: [GainPenaltyEvent] {
         showAll ? Array(events.prefix(10)) : Array(events.prefix(5))
     }
