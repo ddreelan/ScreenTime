@@ -37,6 +37,10 @@ struct DashboardView: View {
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 24)
 
+                    // Recent Gains & Penalties
+                    RecentGainsPenaltiesSection(events: viewModel.recentGainsPenalties)
+                        .padding(.horizontal)
+
                     // Recent Activities
                     if !viewModel.recentActivities.isEmpty {
                         VStack(alignment: .leading, spacing: 12) {
@@ -105,6 +109,94 @@ struct DashboardView: View {
         let minutes = (Int(seconds) % 3600) / 60
         if hours > 0 { return "\(hours)h \(minutes)m" }
         return "\(minutes)m"
+    }
+}
+
+struct RecentGainsPenaltiesSection: View {
+    let events: [GainPenaltyEvent]
+    @State private var showAll = false
+
+    var displayEvents: [GainPenaltyEvent] {
+        showAll ? Array(events.prefix(10)) : Array(events.prefix(5))
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Recent Gains & Penalties")
+                .font(.headline)
+                .fontWeight(.semibold)
+
+            if events.isEmpty {
+                Text("No gains or penalties yet today. Start an activity!")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            } else {
+                ForEach(displayEvents) { event in
+                    GainPenaltyRow(event: event)
+                }
+                if !showAll && events.count > 5 {
+                    Button("See all") { showAll = true }
+                        .font(.subheadline)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                }
+            }
+        }
+        .padding(16)
+        .background(Color(.systemBackground))
+        .cornerRadius(12)
+        .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
+    }
+}
+
+struct GainPenaltyRow: View {
+    let event: GainPenaltyEvent
+
+    private static let timeFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.timeStyle = .short
+        f.dateStyle = .none
+        return f
+    }()
+
+    private var eventColor: Color { event.isGain ? .green : .red }
+
+    private var deltaText: String {
+        let minutes = abs(event.secondsDelta) / 60
+        return event.isGain ? "+\(minutes)m" : "−\(minutes)m"
+    }
+
+    private var rowIcon: String {
+        switch event.type {
+        case .activityReward: return event.icon
+        case .achievementBonus: return "trophy.fill"
+        case .rewardApp: return "plus.circle.fill"
+        case .penaltyApp: return "minus.circle.fill"
+        }
+    }
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: rowIcon)
+                .font(.title2)
+                .foregroundColor(eventColor)
+                .frame(width: 32)
+
+            Text(event.sourceLabel)
+                .font(.subheadline)
+                .fontWeight(.medium)
+
+            Spacer()
+
+            VStack(alignment: .trailing, spacing: 2) {
+                Text(deltaText)
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(eventColor)
+                Text(Self.timeFormatter.string(from: event.timestamp))
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+        }
     }
 }
 

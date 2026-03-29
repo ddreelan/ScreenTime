@@ -11,6 +11,7 @@ class DashboardViewModel: ObservableObject {
     @Published var motivationalMessage: String = ""
     @Published var recentActivities: [Activity] = []
     @Published var topPenaltyApps: [AppConfig] = []
+    @Published var recentGainsPenalties: [GainPenaltyEvent] = []
 
     private var cancellables = Set<AnyCancellable>()
     private let dataStore = DataStore.shared
@@ -34,11 +35,13 @@ class DashboardViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] activities in
                 let today = Calendar.current.startOfDay(for: Date())
-                self?.recentActivities = activities
+                let todayActivities = activities
                     .filter { Calendar.current.isDate($0.startTime, inSameDayAs: today) }
+                self?.recentActivities = todayActivities
                     .sorted { $0.startTime > $1.startTime }
                     .prefix(3)
                     .map { $0 }
+                self?.deriveGainPenaltyEvents(from: todayActivities)
             }
             .store(in: &cancellables)
 
@@ -52,6 +55,24 @@ class DashboardViewModel: ObservableObject {
                     .map { $0 }
             }
             .store(in: &cancellables)
+    }
+
+    private func deriveGainPenaltyEvents(from activities: [Activity]) {
+        var events: [GainPenaltyEvent] = []
+        for activity in activities where activity.status == .verified && activity.rewardEarned > 0 {
+            let event = GainPenaltyEvent(
+                id: activity.id.uuidString + "_act",
+                type: .activityReward,
+                activityName: activity.displayName,
+                secondsDelta: Int(activity.rewardEarned),
+                timestamp: activity.endTime ?? activity.startTime,
+                icon: activity.type.icon
+            )
+            events.append(event)
+        }
+        recentGainsPenalties = Array(
+            events.sorted { $0.timestamp > $1.timestamp }.prefix(5)
+        )
     }
 
     func refresh() {

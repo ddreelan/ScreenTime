@@ -24,6 +24,45 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     val allAchievements: StateFlow<List<Achievement>> = repository.allAchievements
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    val recentGainsPenalties: StateFlow<List<GainPenaltyEvent>> =
+        combine(todayActivities, repository.getTodayNonZeroEntries()) { activities, entries ->
+            val events = mutableListOf<GainPenaltyEvent>()
+
+            // Map verified activities with reward to ACTIVITY_REWARD events
+            activities
+                .filter { it.status == ActivityStatus.VERIFIED && it.rewardEarnedSeconds > 0 }
+                .forEach { activity ->
+                    events.add(
+                        GainPenaltyEvent(
+                            id = activity.id + "_act",
+                            type = GainPenaltyType.ACTIVITY_REWARD,
+                            activityName = activity.displayName,
+                            secondsDelta = activity.rewardEarnedSeconds,
+                            timestamp = activity.endTime ?: activity.startTime,
+                            icon = activity.type.icon
+                        )
+                    )
+                }
+
+            // Map screen time entries with non-zero timeEarnedOrSpentSeconds
+            entries.forEach { entry ->
+                val isReward = entry.timeEarnedOrSpentSeconds > 0
+                events.add(
+                    GainPenaltyEvent(
+                        id = entry.id + "_entry",
+                        type = if (isReward) GainPenaltyType.REWARD_APP else GainPenaltyType.PENALTY_APP,
+                        appName = entry.appName,
+                        secondsDelta = entry.timeEarnedOrSpentSeconds,
+                        timestamp = entry.startTime,
+                        icon = if (isReward) "add_circle" else "remove_circle"
+                    )
+                )
+            }
+
+            events.sortedByDescending { it.timestamp }.take(10)
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     val motivationalMessage: StateFlow<String> = todaySummary.map { summary ->
         when {
             summary.remainingSeconds <= 0 -> "Screen time limit reached! Complete activities to earn more. 💪"

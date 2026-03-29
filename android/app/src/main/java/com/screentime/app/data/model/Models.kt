@@ -128,6 +128,21 @@ data class Achievement(
     val progress: Float get() = minOf(1f, (progressCurrent / progressTarget).toFloat())
 }
 
+// ─── Gain/Penalty Event ───────────────────────────────────────────────────────
+
+enum class GainPenaltyType { REWARD_APP, PENALTY_APP, ACTIVITY_REWARD, ACHIEVEMENT_BONUS }
+
+data class GainPenaltyEvent(
+    val id: String = UUID.randomUUID().toString(),
+    val type: GainPenaltyType,
+    val appName: String? = null,
+    val activityName: String? = null,
+    val achievementTitle: String? = null,
+    val secondsDelta: Long,
+    val timestamp: Long,
+    val icon: String
+)
+
 // ─── Timeline Data Point ──────────────────────────────────────────────────────
 
 @Entity(tableName = "timeline_data_points")

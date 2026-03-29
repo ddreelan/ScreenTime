@@ -60,6 +60,9 @@ interface ScreenTimeDao {
     @Query("SELECT * FROM screen_time_entries WHERE date = :date ORDER BY startTime DESC")
     fun getEntriesForDate(date: Long): Flow<List<ScreenTimeEntry>>
 
+    @Query("SELECT * FROM screen_time_entries WHERE date = :date AND timeEarnedOrSpentSeconds != 0 ORDER BY startTime DESC")
+    fun getNonZeroEntriesForDate(date: Long): Flow<List<ScreenTimeEntry>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertEntry(entry: ScreenTimeEntry)
 }
