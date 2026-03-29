@@ -18,6 +18,11 @@ class AppUsageTrackingWorker(private val context: Context) {
     private var trackingJob: Job? = null
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
+    // Session tracking for entry creation
+    private var sessionPackage: String? = null
+    private var sessionStartTime: Long = 0L
+    private var sessionEarnedOrSpentSeconds: Long = 0L
+
     companion object {
         private const val SELF_PACKAGE = "com.screentime.app"
         private const val POLL_INTERVAL_MS = 1000L // 1 second
@@ -72,6 +77,14 @@ class AppUsageTrackingWorker(private val context: Context) {
         val configs = appConfigDao.getAllConfigsDirect()
         val config = configs.firstOrNull { it.packageName == foregroundPackage && it.isEnabled }
 
+        // Detect app change and finalize previous session
+        if (foregroundPackage != sessionPackage) {
+            finalizeCurrentSession(configs)
+            sessionPackage = foregroundPackage
+            sessionStartTime = System.currentTimeMillis()
+            sessionEarnedOrSpentSeconds = 0L
+        }
+
         if (config != null) {
             when (config.configType) {
                 AppConfigType.REWARD -> {
@@ -79,12 +92,14 @@ class AppUsageTrackingWorker(private val context: Context) {
                     updatedSummary = updatedSummary.copy(
                         totalEarnedSeconds = updatedSummary.totalEarnedSeconds + rewardPerSecond
                     )
+                    sessionEarnedOrSpentSeconds += rewardPerSecond
                 }
                 AppConfigType.PENALTY -> {
                     val penaltyPerSecond = (abs(config.minutesPerMinute) / 60.0).toLong().coerceAtLeast(0)
                     updatedSummary = updatedSummary.copy(
                         totalPenaltySeconds = updatedSummary.totalPenaltySeconds + penaltyPerSecond
                     )
+                    sessionEarnedOrSpentSeconds += penaltyPerSecond
                 }
                 AppConfigType.NEUTRAL -> { /* no effect */ }
             }
@@ -99,6 +114,30 @@ class AppUsageTrackingWorker(private val context: Context) {
         }
 
         screenTimeDao.upsertSummary(updatedSummary)
+    }
+
+    private suspend fun finalizeCurrentSession(configs: List<AppConfig>) {
+        val pkg = sessionPackage ?: return
+        if (sessionEarnedOrSpentSeconds == 0L) return
+        val config = configs.firstOrNull { it.packageName == pkg && it.isEnabled } ?: return
+        if (config.configType == AppConfigType.NEUTRAL) return
+
+        val timeEarnedOrSpent = when (config.configType) {
+            AppConfigType.REWARD -> sessionEarnedOrSpentSeconds
+            AppConfigType.PENALTY -> -sessionEarnedOrSpentSeconds
+            AppConfigType.NEUTRAL -> return
+        }
+
+        val entry = ScreenTimeEntry(
+            appPackageName = pkg,
+            appName = config.appName,
+            startTime = sessionStartTime,
+            endTime = System.currentTimeMillis(),
+            durationSeconds = (System.currentTimeMillis() - sessionStartTime) / 1000,
+            timeEarnedOrSpentSeconds = timeEarnedOrSpent,
+            date = todayStartMillis()
+        )
+        screenTimeDao.insertEntry(entry)
     }
 
     private fun getForegroundPackage(): String? {

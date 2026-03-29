@@ -6,6 +6,7 @@ import android.content.Context
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.getSystemService
+import com.screentime.app.data.model.toFormattedTime
 
 object NotificationHelper {
     private const val CHANNEL_SCREEN_TIME = "screen_time_alerts"
@@ -66,5 +67,26 @@ object NotificationHelper {
             .build()
 
         NotificationManagerCompat.from(context).notify(2001, notification)
+    }
+
+    fun sendAppExitSummaryNotification(
+        context: Context,
+        totalUsedSeconds: Long,
+        totalPenaltySeconds: Long,
+        remainingSeconds: Long
+    ) {
+        val notification = NotificationCompat.Builder(context, CHANNEL_SCREEN_TIME)
+            .setSmallIcon(android.R.drawable.ic_menu_info_details)
+            .setContentTitle("📊 Session Summary")
+            .setContentText(
+                "Used: ${totalUsedSeconds.toFormattedTime()} • " +
+                "Penalty: ${totalPenaltySeconds.toFormattedTime()} • " +
+                "Remaining: ${remainingSeconds.toFormattedTime()}"
+            )
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setAutoCancel(true)
+            .build()
+
+        NotificationManagerCompat.from(context).notify(3001, notification)
     }
 }
