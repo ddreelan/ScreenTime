@@ -20,6 +20,9 @@ class ScreenTimeService: ObservableObject {
     /// used to calculate total earned/cost for the periodic update notification.
     private var activeAppSessionSeconds: TimeInterval = 0
 
+    /// The time the current app session started.
+    private var activeAppSessionStartTime: Date? = nil
+
     /// How often (in seconds) to send a running update notification while an app is active.
     private let updateNotificationInterval: TimeInterval = 300 // 5 minutes
 
@@ -45,8 +48,12 @@ class ScreenTimeService: ObservableObject {
 
     /// Call this when the user declares they are starting or stopping a specific app.
     func setActiveApp(bundleID: String?) {
+        // Finalize the previous session by creating a ScreenTimeEntry if there was meaningful activity
+        finalizeCurrentSession()
+
         activeAppBundleID = bundleID
         activeAppSessionSeconds = 0
+        activeAppSessionStartTime = bundleID != nil ? Date() : nil
 
         // Send an immediate notification when a reward/penalty app is started
         if let id = bundleID,
@@ -59,6 +66,30 @@ class ScreenTimeService: ObservableObject {
                 remainingSeconds: remainingTime
             )
         }
+    }
+
+    /// Creates and saves a ScreenTimeEntry for the just-ended app session.
+    private func finalizeCurrentSession() {
+        guard let previousBundleID = activeAppBundleID,
+              activeAppSessionSeconds != 0,
+              let sessionStart = activeAppSessionStartTime else { return }
+
+        let config = dataStore.appConfigs.first(where: { $0.bundleIdentifier == previousBundleID && $0.isEnabled })
+        guard let config = config, config.configType != .neutral else { return }
+
+        let timeEarnedOrSpent: TimeInterval = config.configType == .reward
+            ? activeAppSessionSeconds
+            : -activeAppSessionSeconds
+
+        let entry = ScreenTimeEntry(
+            appBundleIdentifier: previousBundleID,
+            appName: config.appName,
+            startTime: sessionStart,
+            endTime: Date(),
+            duration: Date().timeIntervalSince(sessionStart),
+            timeEarnedOrSpent: timeEarnedOrSpent
+        )
+        dataStore.saveScreenTimeEntry(entry)
     }
 
     private func tick() {

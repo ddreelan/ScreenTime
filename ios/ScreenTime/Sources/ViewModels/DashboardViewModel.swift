@@ -34,14 +34,22 @@ class DashboardViewModel: ObservableObject {
         dataStore.$activities
             .receive(on: DispatchQueue.main)
             .sink { [weak self] activities in
+                guard let self else { return }
                 let today = Calendar.current.startOfDay(for: Date())
                 let todayActivities = activities
                     .filter { Calendar.current.isDate($0.startTime, inSameDayAs: today) }
-                self?.recentActivities = todayActivities
+                self.recentActivities = todayActivities
                     .sorted { $0.startTime > $1.startTime }
                     .prefix(3)
                     .map { $0 }
-                self?.deriveGainPenaltyEvents(from: todayActivities)
+                self.updateGainPenaltyEvents(activities: todayActivities)
+            }
+            .store(in: &cancellables)
+
+        dataStore.$screenTimeEntries
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.updateGainPenaltyEvents()
             }
             .store(in: &cancellables)
 
@@ -57,7 +65,14 @@ class DashboardViewModel: ObservableObject {
             .store(in: &cancellables)
     }
 
-    private func deriveGainPenaltyEvents(from activities: [Activity]) {
+    private func updateGainPenaltyEvents(activities: [Activity]? = nil) {
+        let today = Calendar.current.startOfDay(for: Date())
+        let todayActivities = activities ?? dataStore.activities
+            .filter { Calendar.current.isDate($0.startTime, inSameDayAs: today) }
+        deriveGainPenaltyEvents(from: todayActivities, entries: dataStore.screenTimeEntries)
+    }
+
+    private func deriveGainPenaltyEvents(from activities: [Activity], entries: [ScreenTimeEntry]) {
         var events: [GainPenaltyEvent] = []
         for activity in activities where activity.status == .verified && activity.rewardEarned > 0 {
             let event = GainPenaltyEvent(
@@ -70,8 +85,20 @@ class DashboardViewModel: ObservableObject {
             )
             events.append(event)
         }
+        for entry in entries where entry.timeEarnedOrSpent != 0 {
+            let isReward = entry.timeEarnedOrSpent > 0
+            let event = GainPenaltyEvent(
+                id: entry.id.uuidString + "_entry",
+                type: isReward ? .rewardApp : .penaltyApp,
+                appName: entry.appName,
+                secondsDelta: Int(entry.timeEarnedOrSpent),
+                timestamp: entry.startTime,
+                icon: isReward ? "plus.circle.fill" : "minus.circle.fill"
+            )
+            events.append(event)
+        }
         recentGainsPenalties = Array(
-            events.sorted { $0.timestamp > $1.timestamp }.prefix(5)
+            events.sorted { $0.timestamp > $1.timestamp }.prefix(10)
         )
     }
 

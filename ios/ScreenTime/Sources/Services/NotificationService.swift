@@ -147,4 +147,12 @@ class NotificationService: ObservableObject {
     func cancelAllNotifications() {
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
     }
+
+    func sendAppExitSummaryNotification(totalUsed: TimeInterval, totalPenalty: TimeInterval, remaining: TimeInterval) {
+        let content = UNMutableNotificationContent()
+        content.title = "📊 Session Summary"
+        content.body = "Used: \(formatTime(totalUsed)) • Penalty: \(formatTime(totalPenalty)) • Remaining: \(formatTime(remaining))"
+        content.sound = .default
+        scheduleNotification(content: content, identifier: "appExitSummary", delay: 0)
+    }
 }

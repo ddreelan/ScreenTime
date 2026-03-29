@@ -37,6 +37,7 @@ class ScreenTimeRepository(
     suspend fun updateSummary(summary: DailyScreenTimeSummary) = screenTimeDao.upsertSummary(summary)
 
     fun getTodayNonZeroEntries(): Flow<List<ScreenTimeEntry>> = screenTimeDao.getNonZeroEntriesForDate(todayStartMillis())
+    suspend fun saveScreenTimeEntry(entry: ScreenTimeEntry) = screenTimeDao.insertEntry(entry)
 
     suspend fun recordScreenTimeUsage(durationSeconds: Long, appConfig: AppConfig?) {
         val today = todayStartMillis()

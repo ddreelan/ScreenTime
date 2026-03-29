@@ -11,6 +11,7 @@ class DataStore: ObservableObject {
     @Published var activities: [Activity] = []
     @Published var achievements: [Achievement] = []
     @Published var todayTimeline: [TimelineDataPoint] = []
+    @Published var screenTimeEntries: [ScreenTimeEntry] = []
 
     private let userDefaultsKey = "screentime_userprofile"
     private let appConfigsKey = "screentime_appconfigs"
@@ -19,6 +20,7 @@ class DataStore: ObservableObject {
     private let achievementsKey = "screentime_achievements"
     private let defaultPenaltyRateKey = "screentime_default_penalty_rate"
     private let timelineKey = "screentime_timeline"
+    private let screenTimeEntriesKey = "screentime_entries"
 
     var defaultPenaltyRate: Double {
         get {
@@ -44,6 +46,7 @@ class DataStore: ObservableObject {
 
         // Load today's timeline
         loadTimeline()
+        loadScreenTimeEntries()
 
         // Load today's summary
         let today = Calendar.current.startOfDay(for: Date())
@@ -376,6 +379,24 @@ class DataStore: ObservableObject {
             }
         }
         return streak
+    }
+
+    // MARK: - Screen Time Entries
+
+    func saveScreenTimeEntry(_ entry: ScreenTimeEntry) {
+        let today = Calendar.current.startOfDay(for: Date())
+        guard Calendar.current.isDate(entry.date, inSameDayAs: today) else { return }
+        screenTimeEntries.append(entry)
+        saveObject(screenTimeEntries, forKey: screenTimeEntriesKey)
+    }
+
+    private func loadScreenTimeEntries() {
+        let today = Calendar.current.startOfDay(for: Date())
+        if let entries: [ScreenTimeEntry] = loadObject(forKey: screenTimeEntriesKey) {
+            screenTimeEntries = entries.filter { Calendar.current.isDate($0.date, inSameDayAs: today) }
+        } else {
+            screenTimeEntries = []
+        }
     }
 
     // MARK: - Timeline

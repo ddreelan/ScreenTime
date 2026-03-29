@@ -9,6 +9,7 @@ struct ScreenTimeApp: App {
     @StateObject private var authService = AuthService.shared
 
     @State private var showSplash = true
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some Scene {
         WindowGroup {
@@ -39,6 +40,16 @@ struct ScreenTimeApp: App {
                         .onOpenURL { url in
                             URLHandler.shared.handle(url, screenTimeService: screenTimeService)
                         }
+                }
+            }
+            .onChange(of: scenePhase) { newPhase in
+                if newPhase == .background {
+                    let summary = dataStore.todaySummary
+                    notificationService.sendAppExitSummaryNotification(
+                        totalUsed: summary.totalUsed,
+                        totalPenalty: summary.totalPenalty,
+                        remaining: summary.remaining
+                    )
                 }
             }
         }
