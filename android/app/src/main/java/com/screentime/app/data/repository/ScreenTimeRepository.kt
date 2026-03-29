@@ -36,6 +36,8 @@ class ScreenTimeRepository(
     val recentSummaries: Flow<List<DailyScreenTimeSummary>> = screenTimeDao.getRecentSummaries()
     suspend fun updateSummary(summary: DailyScreenTimeSummary) = screenTimeDao.upsertSummary(summary)
 
+    fun getTodayNonZeroEntries(): Flow<List<ScreenTimeEntry>> = screenTimeDao.getNonZeroEntriesForDate(todayStartMillis())
+
     suspend fun recordScreenTimeUsage(durationSeconds: Long, appConfig: AppConfig?) {
         val today = todayStartMillis()
         // Get existing or create new summary - use a simple approach since we can't collect in suspend

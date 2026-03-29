@@ -36,6 +36,7 @@ fun DashboardScreen(
     val summary by viewModel.todaySummary.collectAsState()
     val activities by viewModel.todayActivities.collectAsState()
     val motivationalMessage by viewModel.motivationalMessage.collectAsState()
+    val recentGainsPenalties by viewModel.recentGainsPenalties.collectAsState()
 
     var activeQuickStart by remember { mutableStateOf<ActivityType?>(null) }
     var quickStartElapsed by remember { mutableLongStateOf(0L) }
@@ -100,6 +101,10 @@ fun DashboardScreen(
             }
         }
 
+        item {
+            RecentGainsPenaltiesSection(events = recentGainsPenalties)
+        }
+
         if (activities.isNotEmpty()) {
             item {
                 Text("Today's Activities", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
@@ -149,6 +154,74 @@ fun DashboardScreen(
                 activeQuickStart = null
             }
         )
+    }
+}
+
+@Composable
+fun RecentGainsPenaltiesSection(events: List<GainPenaltyEvent>) {
+    var showAll by remember { mutableStateOf(false) }
+    val displayEvents = if (showAll) events.take(10) else events.take(5)
+
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                "Recent Gains & Penalties",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            if (events.isEmpty()) {
+                Text(
+                    "No gains or penalties yet today. Start an activity!",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            } else {
+                displayEvents.forEach { event ->
+                    GainPenaltyRow(event = event)
+                }
+                if (!showAll && events.size > 5) {
+                    TextButton(
+                        onClick = { showAll = true },
+                        modifier = Modifier.align(Alignment.End)
+                    ) {
+                        Text("See all")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun GainPenaltyRow(event: GainPenaltyEvent) {
+    val isGain = event.secondsDelta > 0
+    val eventColor = if (isGain) Color(0xFF4CAF50) else MaterialTheme.colorScheme.error
+    val deltaMinutes = kotlin.math.abs(event.secondsDelta) / 60
+    val deltaText = if (isGain) "+${deltaMinutes}m" else "−${deltaMinutes}m"
+    val sourceLabel = event.activityName ?: event.appName ?: event.achievementTitle ?: "Unknown"
+    val timeFormatter = remember { SimpleDateFormat("h:mm a", Locale.getDefault()) }
+    val timeText = timeFormatter.format(Date(event.timestamp))
+
+    val rowIcon = when (event.type) {
+        GainPenaltyType.ACTIVITY_REWARD -> Icons.Default.DirectionsWalk
+        GainPenaltyType.ACHIEVEMENT_BONUS -> Icons.Default.EmojiEvents
+        GainPenaltyType.REWARD_APP -> Icons.Default.AddCircle
+        GainPenaltyType.PENALTY_APP -> Icons.Default.RemoveCircle
+    }
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Icon(rowIcon, contentDescription = null, tint = eventColor, modifier = Modifier.size(28.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(sourceLabel, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+        }
+        Column(horizontalAlignment = Alignment.End) {
+            Text(deltaText, style = MaterialTheme.typography.bodyMedium, color = eventColor, fontWeight = FontWeight.SemiBold)
+            Text(timeText, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
     }
 }
 

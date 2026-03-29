@@ -139,6 +139,97 @@ function toClientSummary(row) {
   };
 }
 
+// GET /api/v1/screen-time/gains-penalties?date=YYYY-MM-DD
+router.get('/gains-penalties', authenticate, [
+  query('date').optional().isISO8601(),
+], async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+    let startOfDay, endOfDay;
+    if (req.query.date) {
+      const d = new Date(req.query.date);
+      d.setHours(0, 0, 0, 0);
+      startOfDay = d.getTime();
+      d.setHours(23, 59, 59, 999);
+      endOfDay = d.getTime();
+    } else {
+      const d = new Date();
+      d.setHours(0, 0, 0, 0);
+      startOfDay = d.getTime();
+      d.setHours(23, 59, 59, 999);
+      endOfDay = d.getTime();
+    }
+
+    const events = [];
+
+    // 1. Screen time entries with non-zero time_earned_or_spent
+    const entries = await all(
+      'SELECT * FROM screen_time_entries WHERE user_id = ? AND date = ? AND time_earned_or_spent != 0',
+      [req.userId, startOfDay]
+    );
+    for (const e of entries) {
+      const isReward = e.time_earned_or_spent > 0;
+      events.push({
+        id: e.id,
+        type: isReward ? 'reward_app' : 'penalty_app',
+        appName: e.app_name,
+        activityName: null,
+        achievementTitle: null,
+        secondsDelta: e.time_earned_or_spent,
+        timestamp: e.start_time,
+        icon: isReward ? 'plus.circle.fill' : 'minus.circle.fill',
+      });
+    }
+
+    // 2. Verified activities with reward
+    const activities = await all(
+      `SELECT * FROM activities WHERE user_id = ? AND status = 'verified' AND reward_earned_seconds > 0
+       AND start_time >= ? AND start_time <= ?`,
+      [req.userId, startOfDay, endOfDay]
+    );
+    for (const a of activities) {
+      events.push({
+        id: a.id,
+        type: 'activity_reward',
+        appName: null,
+        activityName: a.custom_name || a.type,
+        achievementTitle: null,
+        secondsDelta: a.reward_earned_seconds,
+        timestamp: a.end_time != null ? a.end_time : a.start_time,
+        icon: 'plus.circle.fill',
+      });
+    }
+
+    // 3. Achievements unlocked today with time reward
+    const achievements = await all(
+      `SELECT * FROM achievements WHERE user_id = ? AND is_unlocked = 1
+       AND unlocked_at >= ? AND unlocked_at <= ? AND time_reward_seconds > 0`,
+      [req.userId, startOfDay, endOfDay]
+    );
+    for (const ach of achievements) {
+      events.push({
+        id: ach.id,
+        type: 'achievement_bonus',
+        appName: null,
+        activityName: null,
+        achievementTitle: ach.title,
+        secondsDelta: ach.time_reward_seconds,
+        timestamp: ach.unlocked_at,
+        icon: 'trophy.fill',
+      });
+    }
+
+    // Sort by timestamp descending (most recent first)
+    events.sort((a, b) => b.timestamp - a.timestamp);
+
+    res.json({ events });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // POST /api/v1/screen-time/timeline
 router.post('/timeline', authenticate, [
   body('timestamp').isInt(),

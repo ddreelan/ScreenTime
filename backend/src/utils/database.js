@@ -151,6 +151,7 @@ async function initializeDatabase() {
       unlocked_at INTEGER,
       progress_current REAL NOT NULL DEFAULT 0,
       progress_target REAL NOT NULL DEFAULT 1,
+      time_reward_seconds INTEGER NOT NULL DEFAULT 0,
       UNIQUE(user_id, title)
     )
   `);
