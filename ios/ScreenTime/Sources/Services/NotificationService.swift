@@ -153,6 +153,15 @@ class NotificationService: ObservableObject {
         content.title = "📊 Session Summary"
         content.body = "Used: \(formatTime(totalUsed)) • Penalty: \(formatTime(totalPenalty)) • Remaining: \(formatTime(remaining))"
         content.sound = .default
-        scheduleNotification(content: content, identifier: "appExitSummary", delay: 0)
+
+        UNUserNotificationCenter.current().getNotificationSettings { settings in
+            guard settings.authorizationStatus == .authorized else { return }
+            let request = UNNotificationRequest(identifier: "appExitSummary", content: content, trigger: nil)
+            UNUserNotificationCenter.current().add(request) { error in
+                if let error = error {
+                    print("[NotificationService] Failed to schedule exit summary: \(error)")
+                }
+            }
+        }
     }
 }

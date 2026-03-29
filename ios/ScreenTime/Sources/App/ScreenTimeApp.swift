@@ -42,7 +42,7 @@ struct ScreenTimeApp: App {
                         }
                 }
             }
-            .onChange(of: scenePhase) { newPhase in
+            .modifier(ScenePhaseChangeModifier(scenePhase: scenePhase) { newPhase in
                 if newPhase == .background {
                     let summary = dataStore.todaySummary
                     notificationService.sendAppExitSummaryNotification(
@@ -51,7 +51,20 @@ struct ScreenTimeApp: App {
                         remaining: summary.remaining
                     )
                 }
-            }
+            })
+        }
+    }
+}
+
+private struct ScenePhaseChangeModifier: ViewModifier {
+    let scenePhase: ScenePhase
+    let action: (ScenePhase) -> Void
+
+    func body(content: Content) -> some View {
+        if #available(iOS 17.0, *) {
+            content.onChange(of: scenePhase) { _, newPhase in action(newPhase) }
+        } else {
+            content.onChange(of: scenePhase) { newPhase in action(newPhase) }
         }
     }
 }
